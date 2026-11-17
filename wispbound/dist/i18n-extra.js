@@ -1,5 +1,17 @@
 // V0.2.1+ interface strings: [English, Russian, Lithuanian].
 export const EXTRA=[
+["Bestiary", "Бестиарий", "Bestiarijus"],
+["Unlocked", "открыто", "atrakinta"],
+["Defeated", "Побеждено", "Nugalėta"],
+["Defeat it once to learn its secrets.", "Победи один раз, чтобы узнать его тайны.", "Nugalėk kartą, kad sužinotum jo paslaptis."],
+["Weak to", "Слабость", "Silpnybė"],
+["Resists", "Сопротивление", "Atsparumas"],
+["Attacks", "Атаки", "Atakos"],
+["Spirits", "Духи", "Dvasios"],
+["Bosses", "Боссы", "Bosai"],
+["weapons", "оружий", "ginklai"],
+["artifacts", "артефактов", "artefaktai"],
+["Weak element: +30% damage. Resisted element: -25% damage. Damage numbers turn orange on a weakness.", "Слабая стихия: +30% урона. Сопротивление: -25% урона. При слабости числа урона становятся оранжевыми.", "Silpnybės elementas: +30 % žalos. Atsparumas: -25 % žalos. Pataikius į silpnybę, žalos skaičiai tampa oranžiniai."],
 ["A heavy cleaver sweeps a wide arc in front of you.", "Тяжёлый тесак рубит широкой дугой перед тобой.", "Sunkus kirvis kerta plačiu lanku priešais tave."],
 ["Ice shards chill spirits; chilled spirits freeze solid.", "Ледяные осколки замедляют духов и замораживают их.", "Ledo šukės lėtina dvasias, o sulėtintos sustingsta."],
 ["A swinging censer leaves clouds of venom that poison spirits.", "Качающаяся кадильница оставляет облака яда, отравляющие духов.", "Siūbuojantis smilkytuvas palieka nuodų debesis, kurie nuodija dvasias."],
