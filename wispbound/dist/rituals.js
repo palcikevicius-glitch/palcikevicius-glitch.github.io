@@ -14,6 +14,10 @@ export const RITUALS={
  corvin:{name:'Last Rites',description:'Spirits inside your seal receive a delayed death mark. Wounded spirits are executed.',color:'#8dedc1'},
  talis:{name:'Eye of the Storm',description:'Your enclosed storm pulls spirits toward its centre and chains lightning inside.',color:'#92efff'}
 };
+// V0.2.0: the ritual charges from defeated spirits and boss damage, never from time.
+// While a ritual (or its echo) is active the meter is frozen; it restarts from zero afterwards.
+export const RITUAL_FULL=20,RITUAL_PER_KILL=.4,RITUAL_PER_GUARDIAN=5,RITUAL_PER_BOSS=12;
+export function chargeRitual(r,amount){if(r.ritualActive||!(amount>0))return 0;const before=r.ritualCharge||0;r.ritualCharge=Math.min(RITUAL_FULL,before+amount*(1+(r.bonus?.ritual||0)));return r.ritualCharge-before;}
 export function insidePath(p,path){let yes=false;for(let i=0,j=path.length-1;i<path.length;j=i++){const a=path[i],b=path[j];if((a.y>p.y)!==(b.y>p.y)&&p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x)yes=!yes;}return yes;}
 export function segmentDistance(p,a,b){const dx=b.x-a.x,dy=b.y-a.y,q=dx*dx+dy*dy,t=q?Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/q)):0;return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy);}
 export const boundaryDistance=(p,path)=>Math.min(...path.slice(1).map((b,i)=>segmentDistance(p,path[i],b)));
@@ -51,7 +55,7 @@ function tickRitual(r,a,api){
  }
 }
 export function stepRitual(r,dt,input,events,api){
- r.ritualCharge=Math.min(20,r.ritualCharge+dt*(1+r.bonus.ritual));r.ritualClock+=dt;
+ r.ritualClock+=dt;
  if(r.ritualClock>.1&&(input.x||input.y)){r.ritualClock=0;r.trail.push({x:r.x,y:r.y});if(r.trail.length>100)r.trail.shift();if(r.ritualCharge>=20&&!r.ritualActive&&activateRitual(r,api))events.push('ritual');}
  const a=r.ritualActive;if(!a)return;a.age+=dt;a.life-=dt;a.tick-=dt;
  if(a.id==='talis')for(const e of r.enemies)if(!e.boss&&insidePath(e,a.path)){const d=dist(e,a)||1;if(d>25){e.x+=(a.x-e.x)/d*58*dt;e.y+=(a.y-e.y)/d*58*dt;}}

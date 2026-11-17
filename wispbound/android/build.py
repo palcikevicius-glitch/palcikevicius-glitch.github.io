@@ -7,9 +7,12 @@ p=argparse.ArgumentParser();p.add_argument('--tools',required=True);p.add_argume
 root=pathlib.Path(__file__).resolve().parents[1];tools=pathlib.Path(a.tools);build=pathlib.Path(a.build).resolve();signing=pathlib.Path(a.signing).resolve();output=pathlib.Path(a.output).resolve()
 for folder in [build,signing,output.parent]:folder.mkdir(parents=True,exist_ok=True)
 def find(name):
- files=list(tools.rglob(name))
- if len(files)!=1:raise RuntimeError('Expected exactly one '+name)
- return files[0]
+ # Windows tool names end in .exe; Linux/macOS builds use the same names without it.
+ for candidate in [name,name[:-4]] if name.endswith('.exe') else [name]:
+  files=[f for f in tools.rglob(candidate) if f.is_file()]
+  if len(files)==1:return files[0]
+  if len(files)>1:raise RuntimeError('Expected exactly one '+candidate)
+ raise RuntimeError('Missing '+name)
 java,javac,keytool,aapt,align,android,d8,signer=[find(n) for n in ['java.exe','javac.exe','keytool.exe','aapt.exe','zipalign.exe','android.jar','d8.jar','apksigner.jar']]
 shutil.copyfile(android,build/'android.jar');android=build/'android.jar'
 def run(*cmd):subprocess.run([str(c) for c in cmd],check=True)

@@ -1,0 +1,11 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {freshSave,newRun,spawn,step} from '../dist/core.js';
+import {activateRitual,chargeRitual,RITUAL_FULL,RITUAL_PER_KILL} from '../dist/rituals.js';
+const quiet=()=>{const s=freshSave(),r=newRun('village','iron_bell',s);Object.assign(r,{worldClock:999,spawnClock:999,nextBoss:99999,nextMini:99999,nextGroup:99999,nextCrate:99999,props:[{id:'far',kind:'rock',x:900,y:900,radius:10}]});r.weapons[0].timer=999;r.nextXp=1e9;return {s,r};};
+const advance=(r,seconds)=>{for(let t=0;t<seconds;t+=.05)step(r,{x:0,y:0},.05);};
+const square=()=>{const out=[];for(let i=0;i<40;i++){const side=Math.floor(i/10),f=(i%10)/10;out.push([{x:-90+180*f,y:-90},{x:90,y:-90+180*f},{x:90-180*f,y:90},{x:-90,y:90-180*f}][side]);}return out;};
+const killNear=r=>{const e=spawn(r);e.x=r.x+40;e.y=r.y;e.hp=-1;step(r,{x:0,y:0},.05);};
+test('V020 ritual charge no longer fills with time',()=>{const {r}=quiet();advance(r,30);assert.equal(r.ritualCharge,0);});
+test('V020 defeated spirits charge the ritual and guardians charge more',()=>{const {r}=quiet();killNear(r);assert.ok(Math.abs(r.ritualCharge-RITUAL_PER_KILL)<1e-9);const kills=Math.ceil(RITUAL_FULL/RITUAL_PER_KILL);for(let i=0;i<kills;i++)killNear(r);assert.equal(r.ritualCharge,RITUAL_FULL);});
+test('V020 ritual meter is frozen while active and restarts from zero afterwards',()=>{const {r}=quiet();r.ritualCharge=RITUAL_FULL;r.trail=square();r.x=-90;r.y=-90;assert.ok(activateRitual(r));assert.equal(r.ritualCharge,0);for(let i=0;i<10;i++)killNear(r);assert.equal(r.ritualCharge,0);assert.equal(chargeRitual(r,5),0);advance(r,12);assert.equal(r.ritualActive,null);assert.equal(r.ritualCharge,0);killNear(r);assert.ok(r.ritualCharge>0);});
+test('V020 echo keeps the meter frozen until the echo also ends',()=>{const {r}=quiet();r.bonus.ritualEcho=.5;r.ritualCharge=RITUAL_FULL;r.trail=square();r.x=-90;r.y=-90;activateRitual(r);advance(r,9.5);assert.ok(r.ritualActive?.echoed);killNear(r);assert.equal(r.ritualCharge,0);advance(r,6);assert.equal(r.ritualActive,null);killNear(r);assert.ok(r.ritualCharge>0);});
