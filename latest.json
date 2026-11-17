@@ -1,0 +1,10 @@
+{
+  "versionCode": 103,
+  "versionName": "1.03",
+  "packageName": "lt.autoknygele.app",
+  "minSdk": 26,
+  "apk": "/autoknygele-v1.03.apk",
+  "size": 1889854,
+  "sha256": "b76527c523ba1208d6dd9ca28ac69d0ea48821c25756fc74fe424891cff5e8e2",
+  "notes": "Atnaujinimai dabar tikrinami naujame serveryje (GitHub). Duomenys ir funkcijos nepakeisti."
+}
