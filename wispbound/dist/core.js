@@ -20,7 +20,7 @@ export const gemValue=tier=>tier>=5?9:tier>=3?3:1;
 export const tierHealth=healthForTier;
 // V0.2.1: the Magnet pulls crystals from about two screens away, not from across the whole map.
 export const MAGNET_RADIUS=900;
-export const freshSave=()=>({schema:6,...freshMeta(),collectedWeapons:['iron_bell'],clearedMaps:[],heroLevel:1,heroXp:0,gold:0,shards:0,skills:[],ranks:{},discovered:[],trials:[],bosses:0,best:0,runs:0,lastClaim:null,settings:{language:'en',controls:'joystick',controlSize:130,controlOpacity:.7,controlSide:'left',controlBottom:24,music:.35,musicMuted:false,sfx:.6,quality:'high',soundQuality:'high',sharpness:100,pixelScale:1,fxIntensity:.75,screenShake:.35}});
+export const freshSave=()=>({schema:6,...freshMeta(),collectedWeapons:['iron_bell'],clearedMaps:[],heroLevel:1,heroXp:0,gold:0,shards:0,skills:[],ranks:{},discovered:[],trials:[],bosses:0,best:0,runs:0,lastClaim:null,settings:{language:'en',controls:'joystick',controlSize:130,controlOpacity:.7,controlSide:'left',controlBottom:24,music:.35,musicMuted:false,sfx:.6,quality:'high',soundQuality:'high',sharpness:100,pixelScale:1,fxIntensity:.75,screenShake:.35,brightness:.7}});
 const int=(n,a,b)=>Number.isInteger(n)&&n>=a&&n<=b;
 export function validateSave(s){
  if(!s||![1,2,3,4,5,6].includes(s.schema)||!int(s.heroLevel,1,60)||!Number.isFinite(s.heroXp)||s.heroXp<0||!Number.isFinite(s.gold)||s.gold<0||!Number.isFinite(s.shards)||s.shards<0)throw Error('Invalid save');
@@ -36,7 +36,7 @@ export function validateSave(s){
  if(s.slotId!==undefined&&(typeof s.slotId!=='string'||!/^[a-zA-Z0-9-]{1,80}$/.test(s.slotId)))throw Error('Invalid hero slot');if(s.playedSeconds!==undefined&&(!Number.isFinite(s.playedSeconds)||s.playedSeconds<0))throw Error('Invalid play time');
  const o={...freshSave().settings,...s.settings};
  if(!['en','ru','lt'].includes(o.language)||!['joystick','arrows'].includes(o.controls)||!['left','right'].includes(o.controlSide)||!['low','medium','high'].includes(o.quality)||!['low','high'].includes(o.soundQuality))throw Error('Invalid settings');
- for(const [k,a,b] of [['controlSize',90,200],['controlOpacity',.2,1],['controlBottom',12,180],['music',0,1],['sfx',0,1],['sharpness',0,100],['pixelScale',1,3],['fxIntensity',.25,1],['screenShake',0,1]])if(!Number.isFinite(o[k])||o[k]<a||o[k]>b)throw Error('Invalid settings');
+ for(const [k,a,b] of [['controlSize',90,200],['controlOpacity',.2,1],['controlBottom',12,180],['music',0,1],['sfx',0,1],['sharpness',0,100],['pixelScale',1,3],['fxIntensity',.25,1],['screenShake',0,1]])if(!Number.isFinite(o[k])||o[k]<a||o[k]>b)throw Error('Invalid settings');if(o.brightness!==undefined&&(!Number.isFinite(o.brightness)||o.brightness<0||o.brightness>1))throw Error('Invalid settings');
  if(typeof o.musicMuted!=='boolean')throw Error('Invalid music setting');return {...s,settings:o};
 }
 export const mapUnlocked=(s,id)=>{const index=MAPS.findIndex(m=>m.id===id);return index===0||index>0&&(s.clearedMaps||[]).includes(MAPS[index-1].id);};
