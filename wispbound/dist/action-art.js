@@ -65,13 +65,14 @@ export function drawRitualFX(c,r,time=0,reduced=false,quality='high'){
 
 /** Telegraphs persist in reduced-motion mode. age < delay is the safe warning window. */
 export function drawHazards(c,r,time=0,reduced=false){
- for(const h of r.hazards||[]){const age=h.age||0,delay=Math.max(.001,h.delay||0),warning=age<delay,p=clamp(age/delay),radius=Math.max(6,h.radius||45),color=warning?'#ffc175':'#ff627a',t=reduced?0:time;c.save();c.translate(h.x,h.y);
+ for(const h of r.hazards||[]){const age=h.age||0,delay=Math.max(.001,h.delay||0),warning=age<delay,p=clamp(age/delay),radius=Math.max(6,h.radius||45),color=warning?(h.theme||'#ffc175'):'#ff627a',t=reduced?0:time;c.save();c.translate(h.x,h.y);
   if(h.kind==='cone'){drawCone(c,h,warning,p,color);c.restore();continue;}
   if(h.kind==='ring'&&h.gap>0){drawGapRing(c,h,warning,p,radius,color,t);c.restore();continue;}
   if(h.kind==='bolt'&&h.look&&!warning){c.rotate(h.angle||0);drawMissile(c,h.look,radius,t);c.restore();continue;}
   if(h.kind==='circle'&&h.look)drawMarkIcon(c,h.look,radius,warning,p,t);
-  if(h.kind==='bolt'){const a=h.angle||0,length=warning?(h.look==='boulder'?Math.min(1000,(h.speed||100)*(h.maxLife||1)):Math.max(25,Math.min(110,(h.speed||100)*delay))):20;c.rotate(a);if(warning){c.globalAlpha=.25;rect(c,-8,-radius,length+8,radius*2,'#ca673e');c.globalAlpha=1;path(c,[[0,-radius],[length,-radius],[length+10,0],[length,radius],[0,radius]],'#fdb779',2);path(c,[[4,0],[length*p,0]],'#ffebad',3);}else{path(c,[[-18,0],[-5,-radius*.65],[14,0],[-5,radius*.65]],'#be344f',3,true,true);path(c,[[-14,0],[0,-radius*.35],[16,0],[0,radius*.35]],'#ffcf98',1,true,true);}c.restore();continue;}
-  c.globalAlpha=warning?.11:.18;c.fillStyle=warning?'#ffb674':'#ff355d';c.beginPath();c.arc(0,0,radius,0,TAU);if(h.kind==='ring') {c.strokeStyle=color;c.lineWidth=Math.max(10,radius*.11);c.stroke();}else c.fill();
+  if(h.pull){c.globalAlpha=.5;ring(c,0,0,h.pullRadius,'#6ad8ff',1);for(let k=0;k<8;k++){const a=k*TAU/8-t*2;diamond(c,Math.cos(a)*h.pullRadius*.8,Math.sin(a)*h.pullRadius*.8,2,'#bff0ff');}c.globalAlpha=1;}
+  if(h.kind==='bolt'){const a=h.angle||0,length=warning?(h.look==='boulder'?Math.min(1000,(h.speed||100)*(h.maxLife||1)):Math.max(25,Math.min(110,(h.speed||100)*delay))):20;c.rotate(a);if(warning){c.globalAlpha=.25;rect(c,-8,-radius,length+8,radius*2,h.theme||'#ca673e');c.globalAlpha=1;path(c,[[0,-radius],[length,-radius],[length+10,0],[length,radius],[0,radius]],h.theme||'#fdb779',2);path(c,[[4,0],[length*p,0]],'#ffebad',3);}else{path(c,[[-18,0],[-5,-radius*.65],[14,0],[-5,radius*.65]],'#be344f',3,true,true);path(c,[[-14,0],[0,-radius*.35],[16,0],[0,radius*.35]],'#ffcf98',1,true,true);}c.restore();continue;}
+  c.globalAlpha=warning?.13:.2;c.fillStyle=warning?(h.theme||'#ffb674'):'#ff355d';c.beginPath();c.arc(0,0,radius,0,TAU);if(h.kind==='ring') {c.strokeStyle=color;c.lineWidth=Math.max(10,radius*.11);c.stroke();}else c.fill();
   c.globalAlpha=1;ring(c,0,0,radius,'#301e32',6);ring(c,0,0,radius,color,3);if(warning){ring(c,0,0,radius-5,'#ffead4',2,-Math.PI/2,-Math.PI/2+TAU*p);for(let i=0;i<8;i++){const a=i*TAU/8;ray(c,a,radius-4,radius+6,color,2);}if(h.kind!=='ring'){cross(c,0,0,5,'#ffc780');rect(c,-1,-radius*.45,3,8,'#ffe0aa');rect(c,-1,-radius*.45+11,3,3,'#ffe0aa');}}
   else{ring(c,0,0,Math.max(2,radius-7),'#ff9f9c',2);for(let i=0;i<8;i++){const a=i*TAU/8+(reduced?0:t*.4),d=radius*(h.kind==='ring'?.94:.55);diamond(c,Math.cos(a)*d,Math.sin(a)*d,4,'#ffd7b5');}}
   c.restore();
@@ -80,12 +81,17 @@ export function drawHazards(c,r,time=0,reduced=false){
 
 /** Golden reward chest silhouette; final clears add a crown above its lid. */
 // V0.2.0 boss telegraphs: every shape shows its full danger area and fills up as it arms.
-function drawCone(c,h,warning,p,color){const a=h.angle||0,s=h.spread||.5,R=h.radius;c.globalAlpha=warning?.13:.24;c.fillStyle=warning?'#ffb674':'#ff355d';c.beginPath();c.moveTo(0,0);c.arc(0,0,R,a-s,a+s);c.closePath();c.fill();c.globalAlpha=1;c.strokeStyle='#301e32';c.lineWidth=5;c.stroke();c.strokeStyle=color;c.lineWidth=2;c.stroke();if(warning){c.globalAlpha=.35;c.fillStyle='#ffd9a8';c.beginPath();c.moveTo(0,0);c.arc(0,0,R*p,a-s,a+s);c.closePath();c.fill();c.globalAlpha=1;}}
+function drawCone(c,h,warning,p,color){const a=h.angle||0,s=h.spread||.5,R=h.radius;c.globalAlpha=warning?.15:.26;c.fillStyle=warning?(h.theme||'#ffb674'):'#ff355d';c.beginPath();c.moveTo(0,0);c.arc(0,0,R,a-s,a+s);c.closePath();c.fill();c.globalAlpha=1;c.strokeStyle='#301e32';c.lineWidth=5;c.stroke();c.strokeStyle=color;c.lineWidth=2;c.stroke();if(warning){c.globalAlpha=.35;c.fillStyle='#ffd9a8';c.beginPath();c.moveTo(0,0);c.arc(0,0,R*p,a-s,a+s);c.closePath();c.fill();c.globalAlpha=1;}}
 function drawGapRing(c,h,warning,p,radius,color,t){const g=h.gap,ga=h.gapAngle||0,from=ga+g,to=ga-g+TAU;if(warning){ring(c,0,0,radius,'#301e32',5,from,to);ring(c,0,0,radius,color,2,from,to);ring(c,0,0,radius+8,'#ffead4',2,from,from+(to-from)*p);for(const e of [from,to]){const x=Math.cos(e)*radius,y=Math.sin(e)*radius;cross(c,x,y,3,'#9dffb0');}const mid=ga;path(c,[[Math.cos(mid)*(radius+14),Math.sin(mid)*(radius+14)],[Math.cos(mid)*(radius+30),Math.sin(mid)*(radius+30)]],'#9dffb0',3);return;}
- c.globalAlpha=.85;ring(c,0,0,radius,'#301e32',9,from,to);ring(c,0,0,radius,h.look==='stone'?'#b7c3c9':h.look==='howl'?'#c7b7ff':'#ffcf7a',5,from,to);c.globalAlpha=1;for(let k=0;k<10;k++){const a=from+(to-from)*(k+.5)/10;diamond(c,Math.cos(a)*radius,Math.sin(a)*radius,3,'#fff1d0');}}
+ c.globalAlpha=.85;ring(c,0,0,radius,'#301e32',9,from,to);ring(c,0,0,radius,h.theme||(h.look==='stone'?'#b7c3c9':h.look==='howl'?'#c7b7ff':'#ffcf7a'),5,from,to);c.globalAlpha=1;for(let k=0;k<10;k++){const a=from+(to-from)*(k+.5)/10;diamond(c,Math.cos(a)*radius,Math.sin(a)*radius,3,'#fff1d0');}}
 function drawMissile(c,look,radius,t){if(look==='crow'){const f=Math.sin(t*22)>0?1:-1;path(c,[[-9,0],[-2,-7*f],[3,-2],[9,0],[3,2],[-2,7*f]],'#191621',1,true,true);rect(c,5,-1,4,2,'#e6a64a');rect(c,2,-2,2,1,'#ff5a4a');return;}
  if(look==='spark'){diamond(c,0,0,radius+3,'#ff9f3a');diamond(c,0,0,radius-1,'#fff1a8');rect(c,-radius*2,-1,radius*1.6,2,'#ffcf6b');return;}
  if(look==='boulder'){c.fillStyle='#2b3238';c.beginPath();c.arc(0,0,radius+2,0,TAU);c.fill();c.fillStyle='#7d8b94';c.beginPath();c.arc(0,0,radius,0,TAU);c.fill();c.fillStyle='#a8bac6';c.beginPath();c.arc(-radius*.3,-radius*.35,radius*.35,0,TAU);c.fill();const spin=t*6;for(let k=0;k<3;k++){const a=spin+k*2.1;rect(c,Math.cos(a)*radius*.6,Math.sin(a)*radius*.6,3,3,'#4b575f');}return;}
+ if(look==='water'||look==='venom'){const col=look==='water'?'#6ad8ff':'#8be36a';c.fillStyle='#10202a';c.beginPath();c.arc(0,0,radius+2,0,TAU);c.fill();c.fillStyle=col;c.beginPath();c.moveTo(radius*1.6,0);c.arc(0,0,radius,Math.PI*.4,Math.PI*1.6);c.closePath();c.fill();rect(c,-2,-3,3,2,'#ffffff');return;}
+ if(look==='hex'){c.rotate(t*5);diamond(c,0,0,radius+3,'#2a1034');diamond(c,0,0,radius,'#d07aff');cross(c,0,0,3,'#ffe0ff');return;}
+ if(look==='antler'||look==='thorn'){const col=look==='antler'?'#e8dcc0':'#7ab84a';path(c,[[-radius,0],[radius,0]],'#1a1a14',5);path(c,[[-radius,0],[radius,0]],col,3);path(c,[[0,0],[radius*.5,-radius*.7]],col,2);path(c,[[-radius*.4,0],[0,radius*.7]],col,2);return;}
+ if(look==='wave'){c.fillStyle='#0e2a3a';c.beginPath();c.arc(0,0,radius+3,0,TAU);c.fill();c.fillStyle='#3fa8d8';c.beginPath();c.arc(0,0,radius,0,TAU);c.fill();c.fillStyle='#bff0ff';for(let k=-2;k<=2;k++)rect(c,radius*.5,k*radius*.35,4,3,'#e8faff');return;}
+ if(look==='beak'){path(c,[[-22,0],[-6,-radius*.6],[18,0],[-6,radius*.6]],'#7ab8e0',3,true,true);path(c,[[4,-4],[radius,0],[4,4]],'#f0e0a0',1,true,true);return;}
  if(look==='scythe'){path(c,[[-18,0],[-5,-radius*.65],[14,0],[-5,radius*.65]],'#be344f',3,true,true);path(c,[[-4,-radius],[radius,-radius*.2],[-2,-radius*.45]],'#d8e1ec',1,true,true);return;}
  path(c,[[-18,0],[-5,-radius*.65],[14,0],[-5,radius*.65]],'#be344f',3,true,true);}
 function drawMarkIcon(c,look,radius,warning,p,t){const s=Math.max(6,Math.min(16,radius*.22));if(look==='bell'||look==='pillar'){path(c,[[-s,s*.7],[-s*.7,-s*.5],[0,-s],[s*.7,-s*.5],[s,s*.7]],warning?'#ffcf7a':'#ff9c6a',1,true,true);rect(c,-2,s*.7,4,3,'#301e32');return;}
@@ -93,6 +99,9 @@ function drawMarkIcon(c,look,radius,warning,p,t){const s=Math.max(6,Math.min(16,
  if(look==='claw'){for(let k=-1;k<=1;k++)path(c,[[k*s*.6-s*.3,-s],[k*s*.6+s*.3,s]],'#ffd9c9',3);return;}
  if(look==='lantern'){rect(c,-s*.5,-s*.6,s,s*1.2,'#ffd36b');rect(c,-s*.5,-s*.6,s,2,'#2b2b2b');rect(c,-s*.5,s*.6-2,s,2,'#2b2b2b');return;}
  if(look==='burrow'||look==='stone'){for(let k=0;k<5;k++){const a=k*1.25+(warning?t*2:0);rect(c,Math.cos(a)*radius*.45,Math.sin(a)*radius*.45,4,3,'#c9c1ad');}return;}
+ if(look==='flour'){c.globalAlpha=warning?.5:.9;c.fillStyle='#f0ead8';for(let k=0;k<6;k++){const a=k*1.05+t*.6;c.beginPath();c.arc(Math.cos(a)*radius*.35,Math.sin(a)*radius*.35,s*.6,0,TAU);c.fill();}c.globalAlpha=1;return;}
+ if(look==='whirl'){c.strokeStyle='#6ad8ff';c.lineWidth=2;c.beginPath();for(let k=0;k<40;k++){const a=k*.45-t*4,d=k*radius*.025;k?c.lineTo(Math.cos(a)*d,Math.sin(a)*d):c.moveTo(0,0);}c.stroke();return;}
+ if(look==='glass'){for(let k=0;k<5;k++){const a=k*1.26;path(c,[[Math.cos(a)*s*.3,Math.sin(a)*s*.3],[Math.cos(a)*s,Math.sin(a)*s-4],[Math.cos(a)*s+3,Math.sin(a)*s]],'#bfe8ff',1,true,true);}return;}
  if(look==='blink'){for(let k=0;k<6;k++){const a=k*TAU/6+t*4;diamond(c,Math.cos(a)*radius*.6,Math.sin(a)*radius*.6,3,'#ffe27a');}}}
 
 export function drawChests(c,r,time=0,reduced=false){

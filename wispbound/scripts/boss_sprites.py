@@ -169,6 +169,59 @@ def stonebreather(c, f):
     if breathe:
         for i in range(breathe + 2): c.px(22 + i * 2, 24 + breathe + (i % 2), '#c9c1ad')
 
+def miller(c, f):
+    sway = [0, 1, 0, -1][f]; skin, coat = '#9fb8b0', '#3e5a5a'
+    c.rect(16, 56, 6, 6, '#2a2420'); c.rect(27, 56, 6, 6, '#2a2420')
+    c.poly([(11, 28), (37, 28), (39, 57), (9, 57)], coat); c.rect(22, 30, 4, 26, '#2e4646')
+    for x in (12, 18, 30, 35): c.line(x, 50, x + (1 if x % 2 else -1), 58 + sway, '#3f7a50')
+    c.poly([(36, 30 + sway), (46, 34 + sway), (44, 50 + sway), (34, 46 + sway)], '#d8d0b8'); c.rect(38, 38 + sway, 5, 1, '#8a7a5a')
+    c.ellipse(24, 18, 9, 9, skin); c.rect(15, 9, 18, 4, '#5a5048'); c.rect(18, 4, 12, 6, '#5a5048')
+    c.rect(19, 17, 3, 2, '#e8f8ff' if f % 2 else '#bfe8ff'); c.rect(26, 17, 3, 2, '#e8f8ff' if f % 2 else '#bfe8ff')
+    c.poly([(18, 22), (30, 22), (27, 30), (21, 30)], '#c8d0c8'); c.px(24, 32 + sway, '#7ac8e8'); c.px(14, 30 - sway, '#7ac8e8')
+
+def laume(c, f):
+    flow = [0, 1, 2, 1][f]; hair, dress = '#3fb8b0', '#d8eef0'
+    c.poly([(16, 26), (32, 26), (38, 60), (10, 60)], dress); c.poly([(18, 30), (30, 30), (34, 60), (14, 60)], '#bfe0e8')
+    for x in range(11, 38, 4): c.line(x, 58, x + flow - 1, 63, '#8fd8e8')
+    c.poly([(12, 12), (36, 12), (40 + flow, 46), (34, 40), (14, 40), (8 - flow, 46)], hair)
+    c.ellipse(24, 16, 7, 8, '#e8f4f0'); c.rect(20, 15, 2, 2, '#4ae0ff'); c.rect(26, 15, 2, 2, '#4ae0ff'); c.rect(23, 20, 2, 1, '#8ab0b8')
+    for x, y in ((10, 20), (38, 24), (8, 34)): c.rect(x, y + flow, 2, 3, '#6ad8ff')
+    c.line(16, 32, 8, 26 - flow, '#e8f4f0', 2); c.line(32, 32, 40, 26 + flow, '#e8f4f0', 2)
+
+def witch(c, f):
+    glow = f % 2
+    c.poly([(12, 30), (36, 30), (40, 60), (8, 60)], '#4a2a5a'); c.poly([(14, 34), (24, 30), (22, 60), (10, 60)], '#5a3a6a')
+    c.ellipse(24, 22, 8, 8, '#a8b89a'); c.poly([(10, 16), (38, 16), (30, 12), (26, 0), (20, 8)], '#2a1a34'); c.rect(8, 15, 32, 3, '#2a1a34')
+    c.rect(19, 21, 3, 2, '#e07aff' if glow else '#b04ae0'); c.rect(26, 21, 3, 2, '#e07aff' if glow else '#b04ae0'); c.poly([(23, 24), (27, 24), (24, 29)], '#8a9a7a')
+    c.line(34, 36, 42, 28, '#4a2a5a', 2); c.ellipse(43, 25, 4, 5, '#c8d8f0'); c.ellipse(43, 25, 2, 3, '#ffffff' if glow else '#e8f0ff')
+    for x in range(12, 37, 6): c.px(x, 46 + (x % 4), '#c49bff')
+
+def heron(c, f):
+    step = [0, 1, 0, -1][f]; glass, shade = '#bfe8ff', '#7ab8e0'
+    c.line(20, 44, 18 + step, 63, '#5a7a9a'); c.line(28, 44, 30 - step, 63, '#5a7a9a')
+    c.ellipse(24, 38, 11, 8, glass); c.poly([(14, 36), (6, 30 + step), (10, 42)], shade); c.poly([(34, 36), (42, 30 - step), (38, 42)], shade)
+    c.line(24, 31, 22, 16, glass, 3); c.ellipse(22, 13, 4, 4, glass); c.poly([(25, 12), (36, 15), (25, 15)], '#f0e0a0')
+    c.px(21, 12, '#2a3a5a'); c.line(18, 10, 13, 6, '#e8f8ff')
+    for x, y in ((18, 36), (28, 40), (24, 34)): c.px(x, y, '#ffffff')
+
+def antlerking(c, f):
+    sway = [0, 1, 0, -1][f]; bark, moss = '#5a4430', '#5f8a4a'
+    c.rect(17, 52, 5, 10, bark); c.rect(27, 52, 5, 10, bark)
+    c.poly([(13, 26), (35, 26), (37, 54), (11, 54)], bark); c.poly([(9, 28), (13, 26), (11, 58), (5, 56)], moss); c.poly([(39, 28), (35, 26), (37, 58), (43, 56)], moss)
+    c.ellipse(24, 18, 7, 8, '#6a5038'); c.rect(20, 17, 2, 2, '#9fff7a'); c.rect(26, 17, 2, 2, '#9fff7a')
+    for side in (-1, 1):
+        x0 = 24 + side * 5; c.line(x0, 11, x0 + side * 10, 1 + sway, '#d8c8a0', 2); c.line(x0 + side * 5, 6, x0 + side * 12, 8, '#d8c8a0'); c.line(x0 + side * 8, 3, x0 + side * 9, -1, '#d8c8a0')
+    for y in (32, 40, 48): c.line(16, y, 32, y + 1, '#4a3424')
+
+def serpentking(c, f):
+    roll = [0, 1, 2, 1][f]; scale, belly = '#3f7a3a', '#c8d890'
+    c.ellipse(24, 54, 18, 7, scale); c.ellipse(24, 46, 15, 6, '#4a8a42'); c.ellipse(24, 39, 12, 5, scale)
+    for x in range(10, 39, 4): c.px(x, 54 + (x % 3) - 1, '#2a5a2a')
+    c.line(24, 36, 22 + roll, 20, scale, 6); c.ellipse(22 + roll, 16, 7, 6, '#4a8a42'); c.rect(18 + roll, 15, 2, 2, '#ffe86a'); c.rect(25 + roll, 15, 2, 2, '#ffe86a')
+    c.line(22 + roll, 21, 22 + roll, 24, '#e04a4a'); c.px(21 + roll, 25, '#e04a4a'); c.px(23 + roll, 25, '#e04a4a')
+    c.rect(17 + roll, 7, 11, 3, '#e8b84a'); c.px(17 + roll, 5, '#e8b84a'); c.px(22 + roll, 4, '#e8b84a'); c.px(27 + roll, 5, '#e8b84a'); c.px(22 + roll, 8, '#e04a4a')
+    c.line(24, 30, 24, 50, belly)
+
 if __name__ == '__main__':
-    for name, draw in (('scarecrow', scarecrow), ('werewolf', werewolf), ('kaukas', kaukas), ('stonebreather', stonebreather)):
+    for name, draw in (('scarecrow', scarecrow), ('werewolf', werewolf), ('kaukas', kaukas), ('stonebreather', stonebreather), ('miller', miller), ('laume', laume), ('witch', witch), ('heron', heron), ('antlerking', antlerking), ('serpentking', serpentking)):
         print(name, sheet(name, draw), 'bytes')

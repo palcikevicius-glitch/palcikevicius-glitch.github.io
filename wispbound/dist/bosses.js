@@ -15,10 +15,22 @@ export const BOSSES={
   phases:[['blink','spark_spray','blink'],['blink','lantern_mines','spark_spray','steal_light'],['steal_light','blink','lantern_mines','spark_spray']]},
  stonebreather:{id:'stonebreather',sprite:'stonebreather',name:name('Stone Breather','Akmens Alsuotojas','Каменный Дыхатель'),radius:34,speed:[52,58,66],hp:1.15,color:'#9bb6c9',
   phases:[['rock_line','dust_breath','burrow'],['boulder_roll','burrow','rock_line','dust_breath'],['burrow','boulder_roll','dust_breath','rock_line']]},
+ miller:{id:'miller',sprite:'miller',name:name('Drowned Miller','Paskendęs Malūnininkas','Утонувший мельник'),radius:30,speed:[64,72,82],hp:1.05,color:'#e8e2d0',
+  phases:[['wheel_spiral','sluice_charge','flour_cloud'],['millstones','wheel_spiral','sluice_charge','flour_cloud'],['wheel_spiral','millstones','sluice_charge','wheel_spiral']]},
+ laume:{id:'laume',sprite:'laume',name:name('Laumė of the Weir','Užtvankos Laumė','Лауме плотины'),radius:29,speed:[70,78,88],hp:1.1,color:'#6ad8ff',
+  phases:[['tide_rings','whirlpool','wave_sweep'],['wave_sweep','water_clones','tide_rings','whirlpool'],['whirlpool','wave_sweep','tide_rings','water_clones']]},
+ witch:{id:'witch',sprite:'witch',name:name('Mirror Witch','Veidrodžių Ragana','Зеркальная ведьма'),radius:27,speed:[72,80,90],hp:1,color:'#d07aff',
+  phases:[['hex_fan','glass_rain','blink'],['mirror_ring','hex_fan','blink','glass_rain'],['glass_rain','mirror_ring','blink','hex_fan']]},
+ heron:{id:'heron',sprite:'heron',name:name('Glass Heron','Stiklo Garnys','Стеклянная цапля'),radius:30,speed:[80,90,102],hp:1.15,color:'#bfe8ff',
+  phases:[['heron_dive','shard_rain','wing_gust'],['heron_dive','shatter_rings','shard_rain','wing_gust'],['shatter_rings','heron_dive','shard_rain','heron_dive']]},
+ antlerking:{id:'antlerking',sprite:'antlerking',name:name('Antler King','Ragų Karalius','Рогатый король'),radius:31,speed:[66,74,86],hp:1.05,color:'#b8e070',
+  phases:[['antler_charge','root_eruption','antler_throw'],['root_eruption','thorn_ring','antler_charge','antler_throw'],['antler_charge','root_eruption','thorn_ring','antler_charge']]},
+ serpentking:{id:'serpentking',sprite:'serpentking',name:name('Serpent King','Žalčių Karalius','Король ужей'),radius:33,speed:[58,66,76],hp:1.2,color:'#8be36a',
+  phases:[['body_sweep','venom_spit','burrow'],['venom_spit','body_sweep','constrict','burrow'],['constrict','body_sweep','venom_spit','burrow']]},
  legacy:{id:'legacy',sprite:'bellkeeper',name:name('Restless Keeper','Neramus Sergėtojas','Беспокойный Хранитель'),radius:29,speed:[93,102,111],hp:1,color:'#ba7260',phases:[['legacy'],['legacy'],['legacy']]}
 };
 // Bosses by five-minute slot. The last entry is the final boss of that map.
-export const BOSS_ROSTER={village:['scarecrow','werewolf','scarecrow','bellkeeper'],quarry:['kaukas','stonebreather']};
+export const BOSS_ROSTER={village:['scarecrow','werewolf','scarecrow','bellkeeper'],quarry:['kaukas','stonebreather'],mill:['miller','werewolf','miller','laume'],marsh:['witch','heron'],bellwood:['antlerking','werewolf','antlerking','serpentking']};
 export function bossFor(mapId,slot,final){const list=BOSS_ROSTER[mapId];if(!list)return 'legacy';if(final)return list.at(-1);return list[clamp(slot,0,Math.max(0,list.length-2))];}
 export const bossDef=e=>BOSSES[e?.bossId]||BOSSES.legacy;
 export const bossName=(e,lang='en')=>{const n=bossDef(e).name;return n[lang]||n.en;};
@@ -27,7 +39,7 @@ export function arenaAround(r,x,y,radius=ARENA_RADIUS){const b=mapBounds(r.mapId
  const px=Number.isFinite(b.minX)?pad(b.minX,b.maxX):0,py=Number.isFinite(b.minY)?pad(b.minY,b.maxY):0;
  return {x:Number.isFinite(b.minX)?clamp(x,b.minX+px,b.maxX-px):x,y:Number.isFinite(b.minY)?clamp(y,b.minY+py,b.maxY-py):y,radius,baseRadius:radius};}
 const bossDamage=(r,e)=>29+(e.phase||1)*6+Math.floor(r.time/300)*2;
-function hazard(r,e,kind,x,y,radius,extra={}){const h={kind,x,y,radius,age:0,delay:.8,life:.6,maxLife:extra.life??.6,angle:0,speed:220,damage:bossDamage(r,e),hit:false,owner:e.id,...extra};h.maxLife=h.life;r.hazards.push(h);return h;}
+function hazard(r,e,kind,x,y,radius,extra={}){const h={kind,x,y,radius,age:0,delay:.8,life:.6,maxLife:extra.life??.6,angle:0,speed:220,damage:bossDamage(r,e),hit:false,owner:e.id,theme:bossDef(e).color,...extra};h.maxLife=h.life;r.hazards.push(h);return h;}
 const aimAt=(e,r)=>Math.atan2(r.y-e.y,r.x-e.x);
 // A point inside the arena at most `limit` from its centre.
 function inArena(r,p,margin=40){const a=r.arena;if(!a)return p;const d=dist(p,a),max=a.radius-margin;if(d>max){p.x=a.x+(p.x-a.x)/d*max;p.y=a.y+(p.y-a.y)/d*max;}return p;}
@@ -54,11 +66,39 @@ const ATTACKS={
  howl(r,e,rng,api){const alive=r.enemies.filter(n=>n.summonedBy===e.id&&n.hp>0).length,count=Math.max(0,Math.min(10-alive,2+e.phase*2));for(let i=0;i<count;i++){const a=rng()*TAU,p=inArena(r,{x:e.x+Math.cos(a)*90,y:e.y+Math.sin(a)*90},50);api.summon?.(r,e,p.x,p.y);}hazard(r,e,'ring',e.x,e.y,30,{expanding:true,speed:120,life:1.1,delay:.6,gap:.9,gapAngle:aimAt(e,r),look:'howl',damage:Math.round(bossDamage(r,e)*.6)});return 2.6;},
  // The Bell Keeper
  // Consecutive rings drift their gap a little, so the escape lane moves but stays reachable.
- toll_rings(r,e,rng){const n=1+e.phase,start=aimAt(e,r)+(rng()-.5)*.8,drift=rng()<.5?-.25:.25;for(let i=0;i<n;i++)hazard(r,e,'ring',e.x,e.y,40,{expanding:true,speed:150,life:2.8,delay:.75+i*.6,gap:.42,gapAngle:start+i*drift,look:'bell'});return 2.2+n*.4;},
+ toll_rings(r,e,rng){const n=1+e.phase,off=(rng()-.5)*.6,start=aimAt(e,r)+off,drift=off>0?-.18:.18;for(let i=0;i<n;i++)hazard(r,e,'ring',e.x,e.y,40,{expanding:true,speed:150,life:2.8,delay:.75+i*.6,gap:.42,gapAngle:start+i*drift,look:'bell'});return 2.2+n*.4;},
  bell_drop(r,e,rng){const k=2+e.phase,turn=rng()*TAU;hazard(r,e,'circle',r.x,r.y,60,{delay:1,life:.3,look:'bell'});for(let i=0;i<k;i++){const a=turn+i*TAU/k,p=inArena(r,{x:r.x+Math.cos(a)*165,y:r.y+Math.sin(a)*165});hazard(r,e,'circle',p.x,p.y,56,{delay:1.1+i*.14,life:.3,look:'bell'});}return 2.4;},
  // Pillars stand away from the hero: the hero's side of the arena stays between two of them.
  bell_pillars(r,e,rng){const a=r.arena||e,turn=Math.atan2(r.y-a.y,r.x-a.x)+Math.PI/3;for(let i=0;i<3;i++){const ang=turn+i*TAU/3,p={x:a.x+Math.cos(ang)*a.radius*.6,y:a.y+Math.sin(ang)*a.radius*.6};hazard(r,e,'circle',p.x,p.y,34,{delay:.9,life:4.2,look:'pillar',damage:Math.round(bossDamage(r,e)*.5)});for(let k=0;k<3;k++)hazard(r,e,'ring',p.x,p.y,36,{expanding:true,speed:115,life:1.2,delay:1.3+k*1.35,gap:.6,gapAngle:Math.atan2(a.y-p.y,a.x-p.x),look:'bell',damage:Math.round(bossDamage(r,e)*.75)});}return 4.4;},
  bell_cage(r,e,rng){if(r.arena&&!e.caged){e.caged=true;r.arena.targetRadius=Math.max(ARENA_MIN_RADIUS,(r.arena.baseRadius||r.arena.radius)*.72);}return ATTACKS.toll_rings(r,e,rng);},
+ // Drowned Miller
+ wheel_spiral(r,e,rng){const arms=4+(e.phase>1?1:0),turn=rng()*TAU;for(let w=0;w<3;w++)for(let a=0;a<arms;a++)hazard(r,e,'bolt',e.x,e.y,9,{angle:turn+a*TAU/arms+w*.22,speed:190,life:2.8,delay:.7+w*.3,look:'water'});return 2.6;},
+ sluice_charge(r,e){return ATTACKS.scythe_dash(r,e);},
+ flour_cloud(r,e,rng){const turn=rng()*TAU;for(let i=0;i<3;i++){const a=turn+i*TAU/3,p=inArena(r,{x:r.x+Math.cos(a)*120,y:r.y+Math.sin(a)*120});hazard(r,e,'circle',p.x,p.y,70,{delay:1.3+i*.1,life:.4,look:'flour'});}return 2.4;},
+ millstones(r,e,rng){const a=r.arena||{x:e.x,y:e.y,radius:ARENA_RADIUS},dir=e.pattern%2?1:-1,skip=1+Math.floor(rng()*3);for(let i=0;i<5;i++){if(i===skip)continue;const x=r.x+(i-2)*104,y=a.y-dir*(a.radius+20);hazard(r,e,'bolt',x,y,30,{angle:dir>0?Math.PI/2:-Math.PI/2,speed:230,life:(a.radius*2+40)/230,delay:1.05,look:'boulder'});}return 3;},
+ // Laume of the Weir
+ tide_rings(r,e,rng){const n=1+e.phase,off=(rng()-.5)*.6,start=aimAt(e,r)+off,drift=off>0?-.18:.18;for(let i=0;i<n;i++)hazard(r,e,'ring',e.x,e.y,40,{expanding:true,speed:140,life:2.9,delay:.8+i*.65,gap:.45,gapAngle:start+i*drift,look:'water'});return 2.3+n*.4;},
+ whirlpool(r,e){const p=inArena(r,{x:r.x,y:r.y});hazard(r,e,'circle',p.x,p.y,46,{delay:.9,life:2.6,look:'whirl',pull:62,pullRadius:190,damage:Math.round(bossDamage(r,e)*.8)});return 3.4;},
+ wave_sweep(r,e,rng){const a=r.arena||{x:e.x,y:e.y,radius:ARENA_RADIUS},vertical=r.mapId==='mill',dir=e.pattern%2?1:-1,skip=1+Math.floor(rng()*3);for(let i=0;i<5;i++){if(i===skip)continue;const off=(i-2)*104;const x=vertical?r.x+off:a.x-dir*(a.radius+20),y=vertical?a.y-dir*(a.radius+20):r.y+off;hazard(r,e,'bolt',x,y,32,{angle:vertical?(dir>0?Math.PI/2:-Math.PI/2):(dir>0?0:Math.PI),speed:220,life:(a.radius*2+40)/220,delay:1.1,look:'wave'});}return 3.1;},
+ water_clones(r,e,rng,api){return ATTACKS.howl(r,e,rng,api);},
+ // Mirror Witch
+ hex_fan(r,e){fan(r,e,2+e.phase*2,.22,{radius:10,speed:215,life:2.6,delay:.75,look:'hex'},true);return 2.4;},
+ glass_rain(r,e,rng){const turn=rng()*TAU,k=4+e.phase;hazard(r,e,'circle',r.x,r.y,52,{delay:1.15,life:.3,look:'glass'});for(let i=0;i<k;i++){const a=turn+i*TAU/k,p=inArena(r,{x:r.x+Math.cos(a)*150,y:r.y+Math.sin(a)*150});hazard(r,e,'circle',p.x,p.y,44,{delay:1.25+i*.08,life:.3,look:'glass'});}return 2.5;},
+ mirror_ring(r,e,rng){boltRing(r,e,16,3,{radius:10,speed:160,life:3,delay:.85,look:'hex'},rng);return 2.6;},
+ // Glass Heron
+ heron_dive(r,e){const aim=aimAt(e,r),speed=420+e.phase*30,life=.65;hazard(r,e,'bolt',e.x,e.y,30,{angle:aim,speed,life,delay:1,charge:true,look:'beak',damage:bossDamage(r,e)+8});return 2.2;},
+ shard_rain(r,e,rng){return ATTACKS.glass_rain(r,e,rng);},
+ shatter_rings(r,e,rng){return ATTACKS.toll_rings(r,e,rng);},
+ wing_gust(r,e){const aim=aimAt(e,r);e.dashing=true;hazard(r,e,'cone',e.x,e.y,210,{angle:aim,spread:.6,delay:.9,life:.35,look:'gust',hold:true});return 2.3;},
+ // Antler King
+ antler_charge(r,e){return ATTACKS.scythe_dash(r,e);},
+ root_eruption(r,e){return ATTACKS.rock_line(r,e);},
+ antler_throw(r,e){fan(r,e,2+e.phase*2,.24,{radius:11,speed:200,life:2.6,delay:.75,look:'antler'},true);return 2.4;},
+ thorn_ring(r,e,rng){boltRing(r,e,18,3.2,{radius:10,speed:165,life:3,delay:.85,look:'thorn'},rng);return 2.6;},
+ // Serpent King
+ body_sweep(r,e,rng){return r.mapId==='mill'?ATTACKS.millstones(r,e,rng):ATTACKS.boulder_roll(r,e,rng);},
+ venom_spit(r,e){fan(r,e,2+e.phase*2,.22,{radius:10,speed:200,life:2.6,delay:.75,look:'venom'},true);return 2.4;},
+ constrict(r,e,rng){if(r.arena&&!e.caged){e.caged=true;r.arena.targetRadius=Math.max(ARENA_MIN_RADIUS,(r.arena.baseRadius||r.arena.radius)*.72);}return ATTACKS.toll_rings(r,e,rng);},
  // Lantern Thief
  blink(r,e,rng){const a=rng()*TAU,d=150+rng()*110,p=inArena(r,{x:r.x+Math.cos(a)*d,y:r.y+Math.sin(a)*d},60);e.hidden=true;e.dashing=true;hazard(r,e,'circle',p.x,p.y,48,{delay:.85,life:.25,look:'blink',leap:true,land:'sparks'});return 2.1;},
  spark_spray(r,e){for(let w=0;w<3;w++)hazard(r,e,'bolt',e.x,e.y,8,{angle:aimAt(e,r),speed:270,life:2.2,delay:.65+w*.25,look:'spark',spray:3,step:.25});return 2.3;},
@@ -94,6 +134,7 @@ export function stepHazards(r,dt,events,hurt){
     if(h.land==='rocks')r.hazards.push({kind:'ring',x:h.x,y:h.y,radius:40,age:0,delay:.2,life:1.5,maxLife:1.5,angle:0,speed:150,expanding:true,gap:.5,gapAngle:Math.atan2(r.y-h.y,r.x-h.x),damage:Math.round(h.damage*.7),hit:false,owner:h.owner,look:'stone'});}}
   }
   h.life-=dt;
+  if(h.pull){const d=dist(h,r);if(d<h.pullRadius&&d>1){const step=Math.min(d,h.pull*dt);r.x+=(h.x-r.x)/d*step;r.y+=(h.y-r.y)/d*step;}}
   if(h.kind==='bolt'){h.x+=Math.cos(h.angle)*h.speed*dt;h.y+=Math.sin(h.angle)*h.speed*dt;if(h.charge){const b=owner(h.owner);if(b){b.dashing=true;b.x=h.x;b.y=h.y;if(r.arena){const d=dist(b,r.arena),max=r.arena.radius-35;if(d>max){b.x=r.arena.x+(b.x-r.arena.x)/d*max;b.y=r.arena.y+(b.y-r.arena.y)/d*max;h.life=0;}}}else h.life=0;}}
   if(h.expanding)h.radius+=h.speed*dt;
   if(h.hit||r.damageCooldown>0||!(h.damage>0))continue;
