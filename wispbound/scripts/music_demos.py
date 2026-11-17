@@ -211,7 +211,55 @@ def write(path, data):
     pcm = (np.clip(data, -1, 1) * 32767).astype('<i2')
     with wave.open(str(path), 'wb') as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes(pcm.tobytes())
 
-if __name__ == '__main__':
+if __name__ == '__main__' and sys.argv[1] == '--game':
+    pass
+elif __name__ == '__main__':
     out = pathlib.Path(sys.argv[1]); out.mkdir(parents=True, exist_ok=True)
     for name, fn in (('01-meniu', menu), ('02-pamirstas-kaimas', village), ('03-zibintu-karjeras', quarry), ('04-paskendes-malunas', mill), ('05-stiklo-pelke', marsh), ('06-varpu-giria', bellwood), ('07-bosas', boss)):
         write(out / f'{name}.wav', fn()); print('wrote', name)
+
+# ---- In-game loops and sound effects (V0.2.1) ----
+def game_loop(fn):
+    """Two different takes of a piece, crossfaded into a ~80 s loop with soft edges."""
+    a, b = fn(), fn(); x = int(SR * 1.5)
+    a, b = a[:-int(SR * 2.5)], b[:-int(SR * 2.5)]  # drop the demo fade-outs
+    ramp = np.linspace(0, 1, x)[:, None]
+    mid = a[-x:] * (1 - ramp) + b[:x] * ramp
+    out = np.concatenate([a[:-x], mid, b[x:]])
+    out[:x] *= ramp; out[-x:] *= ramp[::-1]
+    return out / max(1e-9, np.abs(out).max()) * .89
+
+def sfx():
+    def mono(x): x = x / max(1e-9, np.abs(x).max()) * .8; return np.stack([x, x], 1)
+    out = {}
+    for i, f in enumerate((660, 740, 830)):  # soft spirit release: airy blip falling in pitch
+        t = np.arange(int(.16 * SR)) / SR; fr = f * (1 - .45 * t / .16)
+        x = np.sin(2 * np.pi * np.cumsum(fr) / SR) * np.exp(-t * 26) * .7 + lowpass(RNG.standard_normal(len(t)), 2500) * np.exp(-t * 40) * .18
+        out[f'kill-{i + 1}'] = mono(x)
+    t = np.arange(int(1.1 * SR)) / SR; x = np.zeros_like(t)
+    for k, n in enumerate((72, 76, 79, 84)): s = int(k * .09 * SR); seg = bell(hz(n), 1.1 - k * .09, .8); x[s:s + len(seg)] += seg[:len(x) - s]
+    out['level'] = mono(x)
+    t = np.arange(int(1.6 * SR)) / SR; x = sum(np.sin(2 * np.pi * hz(n) * t) for n in (62, 69, 74, 81)) * np.minimum(t / .5, 1) * np.exp(-np.maximum(0, t - .6) * 3)
+    x += lowpass(RNG.standard_normal(len(t)), 5000) * .05 * np.sin(np.pi * t / 1.6)
+    out['ritual'] = mono(x)
+    t = np.arange(int(2.2 * SR)) / SR; x = bell(hz(38), 2.2, 1)
+    tk = drum('taiko'); x[:len(tk)] += tk * 1.2; x += np.sin(2 * np.pi * 41 * t) * np.exp(-t * 1.5) * .6
+    out['boss'] = mono(x)
+    t = np.arange(int(1.8 * SR)) / SR; x = np.zeros_like(t)
+    for k, n in enumerate((60, 64, 67, 72, 76, 79)): s = int(k * .07 * SR); seg = pad([hz(n)], 1.8 - k * .07, .5) + bell(hz(n + 12), 1.8 - k * .07, .3); x[s:s + len(seg)] += seg[:len(x) - s]
+    out['evolve'] = mono(x)
+    return out
+
+def build_game(assets):
+    import subprocess, tempfile
+    assets = pathlib.Path(assets)
+    for name, fn in (('menu', menu), ('village', village), ('quarry', quarry), ('mill', mill), ('marsh', marsh), ('bellwood', bellwood), ('boss', boss)):
+        with tempfile.NamedTemporaryFile(suffix='.wav') as tmp:
+            write(tmp.name, game_loop(fn))
+            subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', tmp.name, '-af', 'loudnorm=I=-18:TP=-1.5:LRA=11', '-ar', '44100', '-b:a', '96k', str(assets / f'music-{name}.mp3')], check=True)
+        print('music', name)
+    for name, data in sfx().items():
+        write(assets / f'{name}.wav', data); print('sfx', name)
+
+if __name__ == '__main__' and sys.argv[1] == '--game':
+    build_game(sys.argv[2])
