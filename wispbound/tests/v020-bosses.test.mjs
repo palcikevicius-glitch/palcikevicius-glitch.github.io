@@ -1,0 +1,35 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {freshSave,newRun,spawn,step,validateRun} from '../dist/core.js';
+import {BOSSES,BOSS_ROSTER,ARENA_RADIUS,ARENA_MIN_RADIUS,bossFor,bossName,stepBoss,stepHazards,touches} from '../dist/bosses.js';
+import {insideWorld,constrainToWorld} from '../dist/world-geometry.js';
+import {MAPS} from '../dist/catalog.js';
+import {encodeSave,decodeSave} from '../dist/storage.js';
+const HERO_SPEED=142;// world units per combat second, before bonuses
+const quiet=(map='village')=>{const s=freshSave();s.clearedMaps=MAPS.map(m=>m.id);const r=newRun(map,'iron_bell',s);Object.assign(r,{worldClock:999,spawnClock:999,nextBoss:99999,nextMini:99999,nextGroup:99999,nextCrate:99999,props:[]});r.weapons[0].timer=999;r.nextXp=1e9;return {s,r};};
+const seeded=seed=>()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
+const attackIds=()=>[...new Set(Object.values(BOSSES).filter(b=>b.id!=='legacy').flatMap(b=>b.phases.flat()))];
+const ownerOf=id=>Object.values(BOSSES).find(b=>b.id!=='legacy'&&b.phases.flat().includes(id));
+// Builds one boss attack in a quiet arena: hero at the arena centre, boss 200 units away.
+function cast(id,phase,seed=7){const def=ownerOf(id),map=Object.entries(BOSS_ROSTER).find(([,l])=>l.includes(def.id))[0];const {r}=quiet(map);r.slot=0;const e=spawn(r,true,def.id===BOSS_ROSTER[map].at(-1));e.bossId=def.id;r.arena.phase='active';r.arena.x=r.x;r.arena.y=r.y;e.x=r.x+200;e.y=r.y;e.hp=e.maxHp*(phase===1?1:phase===2?.6:.3);e.attackClock=0;e.pattern=def.phases[phase-1].indexOf(id);r.enemies=[e];r.hazards=[];stepBoss(r,e,.001,[],{summon:()=>null},seeded(seed));return {r,e};}
+test('V020 each map has its own boss roster; unported maps keep the legacy keeper',()=>{
+ assert.deepEqual([0,1,2].map(s=>bossFor('village',s,false)),['scarecrow','werewolf','scarecrow']);assert.equal(bossFor('village',3,true),'bellkeeper');
+ assert.equal(bossFor('quarry',0,false),'kaukas');assert.equal(bossFor('quarry',1,true),'stonebreather');
+ for(const m of ['mill','marsh','bellwood'])assert.equal(bossFor(m,0,false),'legacy');
+ for(const b of Object.values(BOSSES))for(const lang of ['en','lt','ru'])assert.ok(bossName({bossId:b.id},lang).length>3);
+});
+test('V020 spawned bosses use the boss scheduled for their five-minute slot',()=>{const {r}=quiet();r.nextBoss=600;const e=spawn(r,true,false);assert.equal(e.bossId,'werewolf');r.arena=null;r.nextBoss=1200;const f=spawn(r,true,true);assert.equal(f.bossId,'bellkeeper');assert.equal(f.radius,BOSSES.bellkeeper.radius);});
+test('V020 boss arenas are at least 400 units on every map, including the narrow Drowned Mill',()=>{for(const m of MAPS.map(m=>m.id)){const {r}=quiet(m);Object.assign(r,constrainToWorld(r,{x:5000,y:-5000},13));spawn(r,true);assert.ok(r.arena.radius>=ARENA_RADIUS,m);assert.ok(insideWorld(r,r.arena,0),m);}});
+test('V020 every boss attack is telegraphed for at least 0.6 seconds and saves cleanly',()=>{for(const id of attackIds())for(const phase of [1,2,3]){const {r}=cast(id,phase);const dangerous=r.hazards.filter(h=>h.damage>0);assert.ok(dangerous.length>0,id);for(const h of dangerous)assert.ok(h.delay>=.6,`${id} delay ${h.delay}`);assert.doesNotThrow(()=>validateRun(decodeSave(encodeSave(freshSave(),r)).run),id);}});
+// Searches for a spot the hero can reach before the first hit lands and that stays untouched while
+// the hero stands there. Tracking attacks are handled separately below.
+function safeSpot(r){const hazards=r.hazards.filter(h=>h.damage>0);const reach=HERO_SPEED*Math.min(...hazards.map(h=>h.delay))*.9,start={x:r.x,y:r.y};
+ const candidates=[start];for(let a=0;a<64;a++)for(const f of [.2,.4,.6,.8,1])candidates.push({x:start.x+Math.cos(a*Math.PI/32)*reach*f,y:start.y+Math.sin(a*Math.PI/32)*reach*f});
+ for(const c of candidates){if(Math.hypot(c.x-r.arena.x,c.y-r.arena.y)>r.arena.radius-18)continue;const sim={...r,x:c.x,y:c.y,hazards:structuredClone(r.hazards),enemies:structuredClone(r.enemies),damageCooldown:0,time:0};let hits=0;for(let t=0;t<7;t+=.02)stepHazards(sim,.02,[],()=>{hits++;});if(!hits)return c;}
+ return null;}
+test('V020 every non-tracking attack leaves a reachable safe spot (phases 1 and 2, several seeds)',()=>{for(const id of attackIds()){if(['pounce','frenzy','burrow','howl'].includes(id))continue;for(const phase of [1,2])for(const seed of [3,7,11,19]){const {r}=cast(id,phase,seed);if(r.hazards.some(h=>h.track||h.follow))continue;assert.ok(safeSpot(r),`${id} phase ${phase} seed ${seed}`);}}});
+test('V020 tracking attacks lock early enough for the hero to step out of the circle',()=>{for(const [id,phase] of [['pounce',1],['pounce',3],['frenzy',3],['burrow',1],['burrow',3]]){const {r}=cast(id,phase);for(const h of r.hazards.filter(h=>h.track||h.follow)){const lockedFor=h.track?h.track:h.delay-h.follow;assert.ok(HERO_SPEED*lockedFor>h.radius+13,`${id} ${lockedFor}`);}}});
+test('V020 hidden bosses cannot be damaged and reappear where the telegraph lands',()=>{const {r,e}=cast('burrow',1);assert.equal(e.hidden,true);const hp=e.hp;for(let i=0;i<10;i++)step(r,{x:0,y:0},.05);assert.equal(e.hp,hp);for(let i=0;i<60;i++)step(r,{x:0,y:0},.05);assert.equal(e.hidden,false);});
+test('V020 Bell Keeper cage shrinks the arena but never below the minimum',()=>{const {r}=cast('bell_cage',3);for(let i=0;i<400;i++)step(r,{x:0,y:0},.05);assert.ok(r.arena.radius<ARENA_RADIUS);assert.ok(r.arena.radius>=ARENA_MIN_RADIUS);});
+test('V020 Grave Hound howl summons a capped pack of arena minions',()=>{const {r,e}=cast('howl',3);assert.ok(r.enemies.length===1);const {r:r2}=quiet();r2.nextBoss=600;const w=spawn(r2,true);r2.arena.phase='active';w.attackClock=0;w.pattern=2;for(let i=0;i<8;i++){w.attackClock=0;w.pattern=2;step(r2,{x:0,y:0},.05);}const pack=r2.enemies.filter(n=>n.summonedBy===w.id);assert.ok(pack.length>0&&pack.length<=10);assert.ok(pack.every(n=>n.arenaMember));});
+test('V020 gapped rings and cones only hurt inside their shape',()=>{const ring={kind:'ring',x:0,y:0,radius:100,gap:.4,gapAngle:0};assert.equal(touches(ring,{x:100,y:0}),false);assert.equal(touches(ring,{x:0,y:100}),true);const cone={kind:'cone',x:0,y:0,radius:150,angle:0,spread:.5};assert.equal(touches(cone,{x:100,y:0}),true);assert.equal(touches(cone,{x:0,y:100}),false);assert.equal(touches(cone,{x:-100,y:0}),false);});
+test('V020 safe-spot search really rejects an inescapable pattern',()=>{const {r}=cast('crow_fan',1);r.hazards=[{kind:'circle',x:r.x,y:r.y,radius:600,age:0,delay:.8,life:.5,maxLife:.5,angle:0,speed:0,damage:30,hit:false}];assert.equal(safeSpot(r),null);const {r:r2}=cast('crow_fan',1);for(const h of r2.hazards)h.angle=Math.atan2(r2.y-h.y,r2.x-h.x);r2.hazards.push(...r2.hazards.map(h=>({...h,angle:h.angle+.12})),...r2.hazards.map(h=>({...h,angle:h.angle-.12})));});

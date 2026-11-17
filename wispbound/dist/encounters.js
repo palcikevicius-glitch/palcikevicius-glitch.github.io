@@ -3,6 +3,7 @@ import {weapon,artifactBonuses,RECIPES,ULTIMATES} from './catalog.js';
 
 const TAU=Math.PI*2,dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 import {stepRitual} from './rituals.js';
+import {stepBoss,stepHazards,arenaAround,bossDef} from './bosses.js';
 export {RITUALS,activateRitual,closedLoop} from './rituals.js';
 export function encounterState(r,legacy=false){
  return {baseMaxHp:r.maxHp/(1+.08*(r.artifacts?.root_sigil||0)),arena:null,hazards:[],chests:[],chestReward:null,ritualActive:null,afterimageClock:0,victoryPending:false,journeyStats:{damageTaken:0,ritualKills:0,chests:0,noHitBosses:0,fastBosses:0,peakSlots:r.weapons.reduce((n,w)=>n+weapon(w.id).capacity,0),maxArtifacts:Object.keys(r.artifacts).length,eligible:!legacy}};
@@ -10,7 +11,7 @@ export function encounterState(r,legacy=false){
 export function recordLoadout(r){if(!r.journeyStats)return;r.journeyStats.peakSlots=Math.max(r.journeyStats.peakSlots,r.weapons.reduce((n,w)=>n+weapon(w.id).capacity,0));r.journeyStats.maxArtifacts=Math.max(r.journeyStats.maxArtifacts,Object.keys(r.artifacts).length);}
 export function gainArtifact(r,id){r.artifacts[id]=(r.artifacts[id]||0)+1;if(id==='root_sigil'){const extra=(r.baseMaxHp||r.maxHp)*.04;r.maxHp+=extra;r.hp=Math.min(r.maxHp,r.hp+extra);}recordLoadout(r);}
 export function startArena(r,e){
- const radius=r.mapId==='mill'?210:330;r.arena=constrainToWorld(r,{x:r.x,y:r.y,radius,phase:'opening',age:0,timer:1.2,bossId:e.id},radius+20);
+ r.arena={...arenaAround(r,r.x,r.y),phase:'opening',age:0,timer:1.2,bossId:e.id};const radius=r.arena.radius;
  e.spawnedAt=r.time;e.damageAtSpawn=r.journeyStats.damageTaken;e.attackClock=1.8;e.pattern=0;
  e.x=r.x+(e.x-r.x)*.8;e.y=r.y+(e.y-r.y)*.8;
  for(const n of r.enemies)if(!n.boss)n.arenaMember=dist(n,r.arena)<radius-n.radius;
@@ -59,21 +60,9 @@ export function openChest(r,id,heal,rng=Math.random){
 }
 export function acknowledgeChest(r){if(!r.chestReward)return false;const final=r.chestReward.final;r.chestReward=null;if(final){r.won=true;r.over=true;r.victoryPending=false;}return true;}
 export function stepEncounters(r,dt,input,events,api){
- const a=r.arena;if(a){for(const enemy of r.enemies)if(!enemy.boss&&enemy.arenaMember===undefined)enemy.arenaMember=dist(enemy,a)<a.radius-enemy.radius;a.age+=dt;a.timer=Math.max(0,a.timer-dt);if(a.phase==='opening'&&a.age>=1.2)a.phase='active';if(a.phase==='closing'&&a.age>=1.2)r.arena=null;else if(a.phase!=='closing'){for(const actor of [r,...r.enemies.filter(e=>e.boss)]){const d=dist(actor,a),limit=a.radius-(actor===r?18:35);if(d>limit){actor.x=a.x+(actor.x-a.x)/d*limit;actor.y=a.y+(actor.y-a.y)/d*limit;}}}}
- for(const e of r.enemies){
-  if(!e.boss||e.hp<=0||!r.arena||r.arena.phase!=='active'||r.freezeTime>0)continue;
-  const phase=e.hp/e.maxHp<.35?3:e.hp/e.maxHp<.7?2:1;e.phase=phase;e.speed=84+phase*9;e.attackClock=(e.attackClock??1)-dt;if(e.attackClock>0)continue;
-  e.attackClock=3.5-phase*.45;e.pattern=(e.pattern||0)+1;
-  const damage=29+phase*6+Math.floor(r.time/300)*2,aim=Math.atan2(r.y-e.y,r.x-e.x),make=(kind,x,y,radius,extra={})=>r.hazards.push({kind,x,y,radius,age:0,delay:.8,life:.6,maxLife:.6,angle:0,speed:220,damage,hit:false,...extra});
-  const pattern=(e.pattern+['village','quarry','mill','marsh','bellwood'].indexOf(r.mapId))%4;
-  if(pattern===0){for(let i=-phase;i<=phase;i++)make('bolt',e.x,e.y,12,{angle:aim+i*.2,life:3,maxLife:3,delay:.65});}
-  else if(pattern===1){make('circle',r.x,r.y,68+phase*8,{delay:.9});if(phase>1)for(const sign of [-1,1])make('circle',r.x+Math.cos(r.angle+Math.PI/2)*sign*115,r.y+Math.sin(r.angle+Math.PI/2)*sign*115,60,{delay:1.15});}
-  else if(pattern===2)make('bolt',e.x,e.y,32,{angle:aim,speed:345+phase*25,life:.7,maxLife:.7,delay:.85,charge:true,owner:e.id,damage:damage+10});
-  else make('ring',e.x,e.y,55,{expanding:true,speed:145+phase*25,life:1.7,maxLife:1.7,delay:.75,damage:damage+4});
- }
- if(r.freezeTime<=0)for(const h of r.hazards){h.age+=dt;if(h.age<h.delay)continue;h.life-=dt;if(h.kind==='bolt'){h.x+=Math.cos(h.angle)*h.speed*dt;h.y+=Math.sin(h.angle)*h.speed*dt;if(h.charge){const boss=r.enemies.find(e=>e.id===h.owner&&e.hp>0);if(boss){boss.dashing=true;Object.assign(boss,constrainToWorld(r,{x:h.x,y:h.y},boss.radius));}else h.life=0;}}if(h.expanding)h.radius+=h.speed*dt;
-  const d=dist(h,r),touch=h.kind==='ring'?Math.abs(d-h.radius)<26:d<h.radius+13;if(touch&&!h.hit&&r.damageCooldown<=0){hurtPlayer(r,h.damage,events);h.hit=true;}
- }r.hazards=r.hazards.filter(h=>h.life>0);for(const e of r.enemies)if(e.dashing&&!r.hazards.some(h=>h.owner===e.id&&h.life>0&&h.age>=h.delay))e.dashing=false;
+ const a=r.arena;if(a){for(const enemy of r.enemies)if(!enemy.boss&&enemy.arenaMember===undefined)enemy.arenaMember=dist(enemy,a)<a.radius-enemy.radius;a.age+=dt;a.timer=Math.max(0,a.timer-dt);if(a.targetRadius&&a.radius>a.targetRadius&&a.phase==='active')a.radius=Math.max(a.targetRadius,a.radius-28*dt);if(a.phase==='opening'&&a.age>=1.2)a.phase='active';if(a.phase==='closing'&&a.age>=1.2)r.arena=null;else if(a.phase!=='closing'){for(const actor of [r,...r.enemies.filter(e=>e.boss)]){const d=dist(actor,a),limit=a.radius-(actor===r?18:35);if(d>limit){actor.x=a.x+(actor.x-a.x)/d*limit;actor.y=a.y+(actor.y-a.y)/d*limit;}}}}
+ for(const e of r.enemies){if(!e.boss||e.hp<=0||!r.arena||r.arena.phase!=='active'||r.freezeTime>0)continue;if(e.hidden&&!r.hazards.some(h=>h.owner===e.id&&h.leap))e.hidden=e.dashing=false;stepBoss(r,e,dt,events,api);}
+ if(r.freezeTime<=0)stepHazards(r,dt,events,hurtPlayer);
  stepRitual(r,dt,input,events,api);
  if(r.bonus.afterimage&&r.moving){r.afterimageClock-=dt;if(r.afterimageClock<=0){r.afterimageClock=2;api.zone(r,{kind:'puddle',id:'afterimage',range:55,color:'#b7dafc',duration:2.5},r.x,r.y,12,{slow:.5,follow:false});}}
  for(const c of r.chests)if(dist(c,r)<56&&openChest(r,c.id,api.heal)){events.push('chest');break;}
