@@ -5,7 +5,8 @@ const release={schema:1,version:`${Math.floor(VERSION.build/100)}.${String(VERSI
 fs.writeFileSync(path.join(root,'release.json'),JSON.stringify(release,null,2));
 // Legacy clients require X.YY in release.version; every player-facing surface uses displayVersion.
 const assetFiles=dir=>fs.readdirSync(path.join(root,dir),{withFileTypes:true}).filter(n=>!n.name.startsWith('.')&&n.name!=='desktop.ini').flatMap(n=>n.isDirectory()?assetFiles(dir+'/'+n.name):[dir+'/'+n.name]);
-const files=['index.html','style.css','catalog.js','progression.js','weapon-art.js','artifact-art.js','skill-tree.js','combat-art.js','action-art.js','adventure-art.js','pickup-art.js','soul-art.js','world-geometry.js','spatial-grid.js','balance.js','rituals.js','encounters.js','bosses.js','movement-input.js','core.js','changelog.js','storage.js','profiles.js','audio.js','i18n.js','content-i18n.js','app.js','render.js','updates.js','update-model.js','manifest.webmanifest','download-qr.svg',...assetFiles('assets')];
+// Every game module is cached automatically (new modules can no longer be forgotten).
+const files=['index.html','style.css',...fs.readdirSync(root).filter(f=>f.endsWith('.js')&&f!=='sw.js').sort(),'manifest.webmanifest','download-qr.svg',...assetFiles('assets')];
 // Hosting may inject metadata into HTML responses. Serve the canonical shell as
 // plain text, verify its bytes, then cache it explicitly as HTML for navigation.
 fs.copyFileSync(path.join(root,'index.html'),path.join(root,'offline-shell.txt'));

@@ -17,6 +17,8 @@ export const nextMiniTime=time=>{const block=Math.floor(time/300),within=time-bl
 export const enemyTierRange=tiersAt;
 export const gemValue=tier=>tier>=5?9:tier>=3?3:1;
 export const tierHealth=healthForTier;
+// V0.2.1: the Magnet pulls crystals from about two screens away, not from across the whole map.
+export const MAGNET_RADIUS=900;
 export const freshSave=()=>({schema:6,...freshMeta(),collectedWeapons:['iron_bell'],clearedMaps:[],heroLevel:1,heroXp:0,gold:0,shards:0,skills:[],ranks:{},discovered:[],trials:[],bosses:0,best:0,runs:0,lastClaim:null,settings:{language:'en',controls:'joystick',controlSize:130,controlOpacity:.7,controlSide:'left',controlBottom:24,music:.35,musicMuted:false,sfx:.6,quality:'high',soundQuality:'high',sharpness:100,pixelScale:1,fxIntensity:.75,screenShake:.35}});
 const int=(n,a,b)=>Number.isInteger(n)&&n>=a&&n<=b;
 export function validateSave(s){
@@ -229,7 +231,7 @@ export function applyPowerup(r,kind,rng=Math.random){
  r.gold+=r.bonus.powerGold||0;
  if(kind==='upgrade')instantUpgrade(r,rng);
  if(kind==='time_stop'){r.freezeTime=Math.max(r.freezeTime,3*(1+(r.bonus.powerDuration||0)+artifactBonuses(r).duration));effect(r,'time_blast',r.x,r.y,620,'#81dfff',{life:.8,maxLife:.8});};
- if(kind==='magnet'){for(const g of r.gems){g.magnet=true;g.magnetAge=0;}effect(r,'magnet_blast',r.x,r.y,180,'#c1a7ed',{life:.8,maxLife:.8});}
+ if(kind==='magnet'){for(const g of r.gems)if(distance(g,r)<MAGNET_RADIUS){g.magnet=true;g.magnetAge=0;}effect(r,'magnet_blast',r.x,r.y,180,'#c1a7ed',{life:.8,maxLife:.8});}
  if(kind==='fireblast'){r.blasts||=[];r.blasts.push({id:r.entityId++,x:r.x,y:r.y,radius:560,age:0,duration:.9,damage:220+r.level*20,hitIds:[]});effect(r,'fire_blast',r.x,r.y,560,'#ff9257',{life:1.2,maxLife:1.2,expansion:.9});}
  if(kind==='bread'){heal(r,30);effect(r,'spark',r.x,r.y,48,'#b8f099',{life:.7,maxLife:.7});}
  if(kind==='xp')r.xp+=(12+r.level*2)*.5*(1+r.bonus.xp);
