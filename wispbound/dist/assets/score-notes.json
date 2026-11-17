@@ -1,0 +1,238 @@
+{
+  "method": "User-supplied audio fragment remixed with offline DSP, time stretching and newly synthesized original accompaniment; no generative music model.",
+  "source": {
+    "name": "ReelAudio-74174.mp3",
+    "sha256": "f8c360c9003e52fb2ea0aff31d16093dce85293b004b908a2bd64d93bd153111",
+    "durationSeconds": 31.08571875,
+    "sampleRate": 44100,
+    "channels": 2,
+    "codec": "MP3",
+    "bitrate": 128000,
+    "integratedLufs": -14.5,
+    "truePeakDbfs": -5.0,
+    "loudnessRangeLu": 5.6,
+    "analysisNote": "Pulse estimates are ambiguous: bass flux has strongest autocorrelation near 112 BPM; broad-band alternatives are about 90 and 150 BPM. Pitch-class estimates conflict, so no definitive source key is asserted. Added notes use a restrained D-minor-pentatonic palette at low level. No listening tool was available; validation below is signal-based.",
+    "unchangedAfterRemix": true
+  },
+  "tracks": [
+    {
+      "id": "intro",
+      "filename": "music-intro.mp3",
+      "title": "Lantern at the Threshold",
+      "description": "A slower, softened arrangement of the supplied fragment, with long stereo echoes, sparse glass-bell notes and a quiet open-fifth pad.",
+      "arrangementBpm": 96,
+      "durationSeconds": 60.0,
+      "masterDurationSeconds": 60.0,
+      "sampleRate": 32000,
+      "channels": 2,
+      "bytes": 963270,
+      "sha256": "dd14a6a5089bbde804c64aa2b0542fb187e47491f8cbef85c4c0506914c94cf3",
+      "integratedLufs": -20.04,
+      "truePeakDbfs": -9.98,
+      "loudnessRangeLu": 5.2,
+      "samplePeakDbfs": -10.013483628851784,
+      "clippedSamples": 0,
+      "loopCrossfadeSeconds": 1.25,
+      "masterBoundaryJump": 0.0,
+      "decodedBoundaryJump": 0.0011850595474243164,
+      "joinNeighbourhoodMaxSampleStep": 0.062248148024082184,
+      "exactLengthPreserved": true,
+      "encoderLatencyMeasuredSamples": 672,
+      "encoderDelayTagSamples": 1824,
+      "encoderPaddingTagSamples": 3168,
+      "encoderAlignmentCorrelation": 0.9996465959113324,
+      "circularEncodingContextSamples": 1152,
+      "verifiedMpegAudioFrames": 1671,
+      "verification": {
+        "tagCrcValid": true,
+        "pcmAlignmentCorrelationStartMiddleEnd": [
+          0.9998946114402859,
+          0.9999040087557547,
+          0.9998703700758094
+        ],
+        "noClipping": true,
+        "exactSampleCount": true,
+        "boundaryJumpUnder0_008": true
+      }
+    },
+    {
+      "id": "menu",
+      "filename": "music-menu.mp3",
+      "title": "Threads in the Workshop",
+      "description": "A closer and brighter companion to the start theme: gentle plucked notes, a light wooden pulse and shorter stereo echoes under the same source phrase.",
+      "arrangementBpm": 104,
+      "durationSeconds": 55.384625,
+      "masterDurationSeconds": 55.384625,
+      "sampleRate": 32000,
+      "channels": 2,
+      "bytes": 888965,
+      "sha256": "5a34de15fc2b243842168979d04e46b0b37058e50f0bcf5aa7b7bb3aa5c8a59f",
+      "integratedLufs": -20.05,
+      "truePeakDbfs": -10.8,
+      "loudnessRangeLu": 4.7,
+      "samplePeakDbfs": -10.823734221261487,
+      "clippedSamples": 0,
+      "loopCrossfadeSeconds": 1.15384375,
+      "masterBoundaryJump": 9.313225746154785e-10,
+      "decodedBoundaryJump": 0.0017263134941458702,
+      "joinNeighbourhoodMaxSampleStep": 0.05770610645413399,
+      "exactLengthPreserved": true,
+      "encoderLatencyMeasuredSamples": 672,
+      "encoderDelayTagSamples": 1824,
+      "encoderPaddingTagSamples": 2252,
+      "encoderAlignmentCorrelation": 0.9996199593367786,
+      "circularEncodingContextSamples": 1152,
+      "verifiedMpegAudioFrames": 1542,
+      "verification": {
+        "tagCrcValid": true,
+        "pcmAlignmentCorrelationStartMiddleEnd": [
+          0.9998716318065719,
+          0.9998713472377444,
+          0.9998732804751301
+        ],
+        "noClipping": true,
+        "exactSampleCount": true,
+        "boundaryJumpUnder0_008": true
+      }
+    },
+    {
+      "id": "combat",
+      "filename": "music-combat.mp3",
+      "title": "Through the Hollow",
+      "description": "The clearest source-led arrangement, with a new walking bass, restrained kick/brush rhythm and small bell responses across the second phrase.",
+      "arrangementBpm": 112,
+      "durationSeconds": 51.4285625,
+      "masterDurationSeconds": 51.4285625,
+      "sampleRate": 32000,
+      "channels": 2,
+      "bytes": 826176,
+      "sha256": "291d15972c532ab9eea480bbff069a16f20fd209c2fbb247b96430283c21cb97",
+      "integratedLufs": -18.55,
+      "truePeakDbfs": -9.18,
+      "loudnessRangeLu": 4.5,
+      "samplePeakDbfs": -9.334122407812652,
+      "clippedSamples": 0,
+      "loopCrossfadeSeconds": 1.0714375,
+      "masterBoundaryJump": 0.0,
+      "decodedBoundaryJump": 0.0007142946124076843,
+      "joinNeighbourhoodMaxSampleStep": 0.07448436319828033,
+      "exactLengthPreserved": true,
+      "encoderLatencyMeasuredSamples": 672,
+      "encoderDelayTagSamples": 1824,
+      "encoderPaddingTagSamples": 3278,
+      "encoderAlignmentCorrelation": 0.9995682369963627,
+      "circularEncodingContextSamples": 1152,
+      "verifiedMpegAudioFrames": 1433,
+      "verification": {
+        "tagCrcValid": true,
+        "pcmAlignmentCorrelationStartMiddleEnd": [
+          0.9998899271325308,
+          0.9998573445453622,
+          0.9998642746419614
+        ],
+        "noClipping": true,
+        "exactSampleCount": true,
+        "boundaryJumpUnder0_008": true
+      }
+    },
+    {
+      "id": "boss",
+      "filename": "music-boss.mp3",
+      "title": "Keeper of the Last Bell",
+      "description": "A faster pitch-preserved arrangement with lower octave ostinato, syncopated toms, denser hats and short rising fills for an active regular boss.",
+      "arrangementBpm": 128,
+      "durationSeconds": 45.0,
+      "masterDurationSeconds": 45.0,
+      "sampleRate": 32000,
+      "channels": 2,
+      "bytes": 723077,
+      "sha256": "67706ff2e683bc4cd83983c3f3dfb6538184eedb268c6d76219f34bd856519ef",
+      "integratedLufs": -18.06,
+      "truePeakDbfs": -8.57,
+      "loudnessRangeLu": 4.1,
+      "samplePeakDbfs": -8.577313876454282,
+      "clippedSamples": 0,
+      "loopCrossfadeSeconds": 0.9375,
+      "masterBoundaryJump": 0.0,
+      "decodedBoundaryJump": 0.006718210875988007,
+      "joinNeighbourhoodMaxSampleStep": 0.07044606655836105,
+      "exactLengthPreserved": true,
+      "encoderLatencyMeasuredSamples": 672,
+      "encoderDelayTagSamples": 1824,
+      "encoderPaddingTagSamples": 2784,
+      "encoderAlignmentCorrelation": 0.9995009410572673,
+      "circularEncodingContextSamples": 1152,
+      "verifiedMpegAudioFrames": 1254,
+      "verification": {
+        "tagCrcValid": true,
+        "pcmAlignmentCorrelationStartMiddleEnd": [
+          0.9998830502154606,
+          0.999847021445787,
+          0.9998288223440512
+        ],
+        "noClipping": true,
+        "exactSampleCount": true,
+        "boundaryJumpUnder0_008": true
+      }
+    }
+  ],
+  "sfx": [
+    {
+      "filename": "spirit-hit-1.wav",
+      "durationSeconds": 0.22,
+      "sampleRate": 32000,
+      "channels": 1,
+      "bytes": 14124,
+      "peakDbfs": -9.0,
+      "rmsDbfs": -24.231002620570816,
+      "clippedSamples": 0,
+      "edgeSamples": [
+        0.0,
+        0.0
+      ],
+      "description": "Original synthesized rounded impact, filtered noise puff and descending liquid bubbles; short soft tail."
+    },
+    {
+      "filename": "spirit-hit-2.wav",
+      "durationSeconds": 0.265,
+      "sampleRate": 32000,
+      "channels": 1,
+      "bytes": 17004,
+      "peakDbfs": -9.0,
+      "rmsDbfs": -22.694974987987564,
+      "clippedSamples": 0,
+      "edgeSamples": [
+        0.0,
+        0.0
+      ],
+      "description": "Original synthesized rounded impact, filtered noise puff and descending liquid bubbles; short soft tail."
+    },
+    {
+      "filename": "spirit-hit-3.wav",
+      "durationSeconds": 0.295,
+      "sampleRate": 32000,
+      "channels": 1,
+      "bytes": 18924,
+      "peakDbfs": -9.0,
+      "rmsDbfs": -24.58702702799623,
+      "clippedSamples": 0,
+      "edgeSamples": [
+        0.0,
+        0.0
+      ],
+      "description": "Original synthesized rounded impact, filtered noise puff and descending liquid bubbles; short soft tail."
+    }
+  ],
+  "integration": {
+    "states": {
+      "start": "Initial title/start screen",
+      "menu": "Home, forge, skill tree, codex and settings",
+      "combat": "Active run without a regular boss",
+      "boss": "Active regular boss only; return to combat when defeated"
+    },
+    "transitionSeconds": 1.6,
+    "loopNote": "Each MP3 has measured encoder delay/padding stored in its CRC-validated Xing/Lavc tag. Exact PCM sample count is verified after decoding. Circular encoding context and a 0.94\u20131.25 second source crossfade prevent an inserted silence at the musical boundary. HTMLAudio scheduling is platform-dependent; a brief overlap may still be useful on devices with native loop gaps. State transitions belong to the parent audio controller.",
+    "sfxMix": "Randomize the three variants with playbackRate about 0.94\u20131.06; throttle starts to about 12 per second and cap concurrent voices. A per-hit gain around 0.18\u20130.28 of the SFX bus avoids fatigue.",
+    "rights": "The source was supplied by the user; attribution/licensing status is not established by this DSP process. Original accompaniment and impact synthesis were created in this task."
+  }
+}

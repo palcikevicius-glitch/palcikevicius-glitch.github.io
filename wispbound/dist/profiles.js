@@ -1,0 +1,19 @@
+import {freshSave} from './core.js';
+import {encodeSave,decodeSave,FutureSaveError} from './storage.js';
+export const PROFILE_KEY='wispbound.profiles';
+const makeId=()=>globalThis.crypto?.randomUUID?.()||'hero-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+export const playTime=seconds=>{const minutes=Math.floor(Math.max(0,seconds||0)/60);return String(Math.floor(minutes/60)).padStart(2,'0')+'h '+String(minutes%60).padStart(2,'0')+'min';};
+function parse(raw){const book=JSON.parse(raw);if(book.version>1)throw new FutureSaveError('This library needs a newer game');if(book.version!==1||!Array.isArray(book.slots)||book.slots.length>100||new Set(book.slots.map(s=>s.id)).size!==book.slots.length)throw Error('Invalid profile library');for(const s of book.slots){if(typeof s.id!=='string'||typeof s.createdAt!=='string'||!Number.isFinite(Date.parse(s.createdAt))||typeof s.raw!=='string')throw Error('Invalid hero slot');const data=decodeSave(s.raw);if(data.profile.slotId!==s.id)throw Error('Hero slot mismatch');}return book;}
+export class ProfileBook{
+ constructor(storage,store,loaded){this.storage=storage;this.store=store;this.expected=null;this.book={version:1,slots:[]};this.blocked=loaded.status==='blocked';if(this.blocked)return;try{this.expected=storage.getItem(PROFILE_KEY);}catch{this.blocked=true;return;}
+  if(this.expected){try{this.book=parse(this.expected);}catch(error){if(error instanceof FutureSaveError){this.blocked=true;return;}let backup;try{backup=storage.getItem(PROFILE_KEY+'.backup');}catch{this.blocked=true;return;}if(!backup){this.blocked=true;return;}try{this.book=parse(backup);this.recoveredRaw=backup;store.verifiedWrite(PROFILE_KEY+'.unreadable',this.expected);}catch{this.blocked=true;return;}}}
+  try{this.identify(loaded.profile,loaded.run);this.save(loaded.profile,loaded.run);store.write(loaded.profile,loaded.run,{checkpoint:true});}catch{this.blocked=true;}
+ }
+ identify(profile,run){if(!profile.slotId)profile.slotId=makeId();if(profile.playedSeconds===undefined){profile.playedSeconds=Math.max(profile.best||0,run?.time||0);profile.playTimeEstimated=profile.playedSeconds>0;}return profile;}
+ assertCurrent(){if(this.blocked)throw Error('Profile library is protected');if(this.storage.getItem(PROFILE_KEY)!==this.expected||this.storage.getItem('wispbound.save')!==this.store.expected)throw Error('Progress changed in another tab. Reload this tab.');}
+ write(next){this.assertCurrent();const raw=JSON.stringify(next),fallback=this.recoveredRaw||this.expected;if(fallback)this.store.verifiedWrite(PROFILE_KEY+'.backup',fallback);this.store.verifiedWrite(PROFILE_KEY,raw);this.expected=raw;this.book=next;this.recoveredRaw=null;}
+ save(profile,run){this.assertCurrent();this.identify(profile,run);const next=structuredClone(this.book),slot=next.slots.find(s=>s.id===profile.slotId),raw=encodeSave(profile,run);if(slot)slot.raw=raw;else{if(next.slots.length>=100)throw Error('Profile slots are full');next.slots.push({id:profile.slotId,createdAt:new Date().toISOString(),raw});}this.write(next);}
+ list(){return this.book.slots.map(slot=>({...slot,...decodeSave(slot.raw)}));}
+ create(current,run,imported=null){this.save(current,run);const profile=imported?structuredClone(imported.profile):freshSave(),journey=imported?.run?structuredClone(imported.run):null;profile.slotId=makeId();if(!imported){profile.playedSeconds=0;profile.playTimeEstimated=false;profile.settings={...current.settings};}this.identify(profile,journey);this.save(profile,journey);this.store.write(profile,journey,{checkpoint:true});return {profile,run:journey};}
+ load(id,current,run){this.save(current,run);const slot=this.book.slots.find(s=>s.id===id);if(!slot)throw Error('Unknown hero');const data=decodeSave(slot.raw);this.store.write(data.profile,data.run,{checkpoint:true});return data;}
+}

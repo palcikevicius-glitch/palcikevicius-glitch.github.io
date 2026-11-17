@@ -1,0 +1,6 @@
+.openai/*.local.*
+node_modules/
+*.p12
+*password*
+android-build/
+desktop.ini

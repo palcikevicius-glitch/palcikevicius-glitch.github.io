@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "version": "1.24",
+  "displayVersion": "0.1.9",
+  "build": 124,
+  "channel": "direct",
+  "saveSchema": 6,
+  "publishedAt": "2026-10-30T07:43:36.088Z",
+  "android": {
+    "package": "lt.benas.wispbound",
+    "size": 13816910,
+    "sha256": "ebc16e80315b7d9bddaea601f881c9f2609696ae3cd0d18003930721842bea99"
+  },
+  "playUrl": null,
+  "appStoreUrl": null,
+  "changes": [
+    "Two optional paid revives per journey: 500 gold, then 1000 gold. Revive with half health and three seconds of protection. Banked and journey gold can pay; after both, death is final.",
+    "Hero XP rewards increased by 25%; gem XP by 10%; power-up supply crates arrive 15% more frequently.",
+    "New journeys begin with zero ritual charge. Existing journeys keep their charge.",
+    "Resin Web fires two visible projectiles before spreading its webs, with 25% stronger damage per web.",
+    "Health uses consistent rounding, so fractional maximum health can no longer display as 101/100."
+  ]
+}
