@@ -11,7 +11,14 @@ export const ARTIFACTS = [
  {id:'ember_pouch',name:'Ember Pouch',theme:'Effect area',stat:'area',step:.05,unit:'percent'},
  {id:'spring_drop',name:'Spring Drop',theme:'Health per second',stat:'regen',step:.15,unit:'regen'},
  {id:'root_sigil',name:'Root Sigil',theme:'Maximum health',stat:'health',step:.04,unit:'percent'},
- {id:'astral_lens',name:'Astral Lens',theme:'Reach',stat:'reach',step:.04,unit:'percent'}
+ {id:'astral_lens',name:'Astral Lens',theme:'Reach',stat:'reach',step:.04,unit:'percent'},
+ // V0.2.1 artifacts
+ {id:'lodestone',name:'Lodestone',theme:'Pickup range',stat:'pickup',step:.15,unit:'percent'},
+ {id:'fortune_coin',name:'Fortune Coin',theme:'Gold find',stat:'greed',step:.08,unit:'percent'},
+ {id:'hare_foot',name:"Hare's Foot",theme:'Movement speed',stat:'speed',step:.05,unit:'percent'},
+ {id:'falcon_feather',name:'Falcon Feather',theme:'Projectile speed',stat:'velocity',step:.08,unit:'percent'},
+ {id:'owl_lens',name:'Owl Lens',theme:'Field of view',stat:'vision',step:.05,unit:'percent'},
+ {id:'luck_clover',name:'Four-leaf Clover',theme:'Critical chance',stat:'luck',step:.03,unit:'percent'}
 ].map(a=>({...a,maxLevel:6,icon:'',label:a.theme}));
 export const artifactValue=(id,level)=>{const a=ARTIFACTS.find(a=>a.id===id);return a?`+${a.unit==='percent'?Math.round(a.step*level*100)+'%':a.unit==='regen'?(a.step*level).toFixed(2)+'/s':a.step*level}`:'';};
 export const artifactBonuses=r=>Object.fromEntries(ARTIFACTS.map(a=>[a.stat,a.step*(r.artifacts[a.id]||0)]));
@@ -28,7 +35,15 @@ export const BASES = [
  base('moon_sickle','Moon Sickle','☽','boomerang','#d0deef',23,1.6,560,'A crescent strikes once outward and once returning. Final mastery adds piercing.',{pierce:6,speed:360,flightTime:2.6}),
  base('thorn_lantern','Thorn Lantern','♢','cone','#e9a971',32,1.5,170,'Lantern light turns toward a nearby spirit and burns a fan.',{angle:1.25,burn:2}),
  base('grave_compass','Grave Compass','✥','mine','#a8c5b5',46,2.7,135,'Marks a nearby enemy. After 0.9 seconds, the marked ground explodes.',{duration:1,deathMark:true}),
- base('storm_chime','Storm Chime','ϟ','lightning','#acdeff',25,1.7,320,'Lightning leaps between three spirits.',{count:3})
+ base('storm_chime','Storm Chime','ϟ','lightning','#acdeff',25,1.7,320,'Lightning leaps between three spirits.',{count:3}),
+ // V0.2.1 elemental arsenal: slash, ice, poison, thunder, arrows, reaping and ricochet.
+ base('smith_cleaver',"Smith's Cleaver",'⚔','slash','#e8eef4',30,1.25,118,'A heavy cleaver sweeps a wide arc in front of you.',{angle:2.1,knock:24,element:'slash'}),
+ base('frost_distaff','Frost Distaff','❄','bolt','#a9e6ff',16,1.1,380,'Ice shards chill spirits; chilled spirits freeze solid.',{count:2,speed:300,pierce:2,slow:.35,freeze:.22,size:6,element:'ice'}),
+ base('viper_censer','Viper Censer','♨','trail','#8be36a',9,.9,50,'A swinging censer leaves clouds of venom that poison spirits.',{duration:3.5,burn:5,slow:.12,element:'poison'}),
+ base('thunder_drum','Thunder Drum','⦿','pulse','#b9c8ff',20,2,140,'Each drumbeat sends out a thunder wave that stuns spirits.',{knock:14,shock:.3,count:2,element:'thunder'}),
+ base('rowan_bow','Rowan Bow','➶','bolt','#e05a4a',24,.95,520,'Rowan arrows fly straight and pierce through lines of spirits.',{speed:560,pierce:3,size:5,flightTime:1.1,element:'pierce'}),
+ base('grave_scythe','Grave Scythe','☠','slash','#c8d0e0',38,2.3,135,'A full circle of the scythe; badly wounded spirits are reaped outright.',{angle:6.28,execute:.18,element:'death'}),
+ base('hail_sling','Hail Sling','●','bolt','#dfe8f0',22,1.3,400,'Hailstones ricochet from spirit to spirit.',{speed:380,homing:true,turnRate:4,bounce:2,size:7,element:'ice'})
 ];
 // Each row is a real alternative form, not an additional upgrade step.
 const evolutionRows = [

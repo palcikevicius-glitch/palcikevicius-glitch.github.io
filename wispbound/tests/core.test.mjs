@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {BASES,EVOLVED,RECIPES,ULTIMATES,WEAPONS,SKILLS,weapon} from '../dist/catalog.js';
 import {freshSave,validateSave,validateRun,newRun,capacity,evolve,fuse,knownBadge,makeChoices,takeChoice,claimRun,learnSkill,points,forge,attack,step,openChest,acknowledgeChest} from '../dist/core.js';
 import {validateRelease,isNewer,canApply,safeStoreUrl} from '../dist/update-model.js';
-test('roster has exactly 12 bases, two alternatives each, 2 ultimates and 38 unique forms',()=>{assert.equal(BASES.length,12);assert.equal(RECIPES.length,24);assert.equal(ULTIMATES.length,2);assert.equal(new Set(WEAPONS.map(w=>w.id)).size,38);assert.equal(SKILLS.length,54);for(const b of BASES)assert.equal(RECIPES.filter(r=>r.baseId===b.id).length,2);for(const u of ULTIMATES){assert.equal(u.components.length,2);assert.ok(u.components.every(id=>EVOLVED.some(w=>w.id===id)));}});
+test('roster: 19 bases (12 classic with two alternatives each), 2 ultimates and unique forms',()=>{assert.equal(BASES.length,19);assert.equal(RECIPES.length,24);assert.equal(ULTIMATES.length,2);assert.equal(new Set(WEAPONS.map(w=>w.id)).size,WEAPONS.length);assert.equal(SKILLS.length,54);for(const b of BASES.slice(0,12))assert.equal(RECIPES.filter(r=>r.baseId===b.id).length,2);for(const u of ULTIMATES){assert.equal(u.components.length,2);assert.ok(u.components.every(id=>EVOLVED.some(w=>w.id===id)));}});
 
 
 

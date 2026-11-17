@@ -20,7 +20,14 @@ export const WEAPON_PATHS={
  moon_sickle:[p('Twin crescents',{count:1}),p('Longer flight',{flight:.2}),p('Sharp moonlight',{damage:.2}),p('Triple crescents',{count:1}),p('Wider crescent',{size:.2}),p('Piercing moon',{haste:.18,count:1,pierce:2})],
  thorn_lantern:[p('Wider lantern fan',{angle:.18}),p('Longer flame',{reach:.15}),p('Hotter wick',{damage:.25,burn:2}),p('Quick flare',{haste:.12}),p('Broad furnace',{angle:.18}),p('Searing light',{damage:.3,reach:.1})],
  grave_compass:[p('Twin death marks',{count:1}),p('Quicker seal',{delay:-.15}),p('Wider burial',{area:.18}),p('Deeper curse',{damage:.25}),p('Third death mark',{count:1}),p('Final toll',{damage:.25,haste:.12})],
- storm_chime:[p('Fourth arc',{count:1}),p('Longer chain',{reach:.15}),p('Faster storm',{haste:.15}),p('Charged strike',{damage:.2}),p('Fifth arc',{count:1}),p('Stunning current',{shock:.16,damage:.15})]
+ storm_chime:[p('Fourth arc',{count:1}),p('Longer chain',{reach:.15}),p('Faster storm',{haste:.15}),p('Charged strike',{damage:.2}),p('Fifth arc',{count:1}),p('Stunning current',{shock:.16,damage:.15})],
+ smith_cleaver:[p('Wider swing',{angle:.2}),p('Honed edge',{damage:.2}),p('Quick swing',{haste:.15}),p('Twin swing',{count:1}),p('Longer reach',{reach:.15}),p('Master smith',{damage:.25,angle:.2})],
+ frost_distaff:[p('Third shard',{count:1}),p('Bitter cold',{slow:.08}),p('Quick frost',{haste:.15}),p('Sharper ice',{damage:.2}),p('Fourth shard',{count:1}),p('Deep freeze',{damage:.2,shock:.1})],
+ viper_censer:[p('Thicker smoke',{area:.18}),p('Stronger venom',{burn:2}),p('Lingering cloud',{duration:.15}),p('Quick censer',{haste:.12}),p("Viper's bite",{damage:.25}),p('Choking cloud',{slow:.08,area:.15})],
+ thunder_drum:[p('Wider thunder',{area:.15}),p('Louder beat',{damage:.2}),p('Third beat',{count:1}),p('Quick rhythm',{haste:.15}),p('Stunning thunder',{shock:.1}),p('Storm drum',{damage:.25,area:.12})],
+ rowan_bow:[p('Twin arrows',{count:1}),p('Fletched arrows',{speed:.15}),p('Rowan tips',{damage:.2}),p('Quick draw',{haste:.15}),p('Volley',{count:1}),p('Heartwood',{damage:.25,pierce:1})],
+ grave_scythe:[p('Longer blade',{reach:.12}),p('Grim edge',{damage:.2}),p('Swift reaping',{haste:.15}),p('Cold hands',{damage:.15,haste:.08}),p('Second sweep',{count:1}),p("Death's harvest",{damage:.25,reach:.1})],
+ hail_sling:[p('Second stone',{count:1}),p('Hard hail',{damage:.2}),p('Quick sling',{haste:.15}),p('Faster stones',{speed:.15}),p('Third stone',{count:1}),p('Storm of hail',{damage:.25,haste:.1})]
 };
 export function pathStats(id,level){const out={damage:0,haste:0,count:0,pierce:0,area:0,reach:0,duration:0,size:0,speed:0,splash:0,orbit:0,burn:0,slow:0,angle:0,flight:0,delay:0,knock:0,shards:0,shock:0,cleave:false};for(const node of (WEAPON_PATHS[id]||[]).slice(0,Math.max(0,Math.min(7,level)-1)))for(const key of Object.keys(out))if(typeof out[key]==='boolean')out[key]||=!!node[key];else out[key]+=node[key]||0;return out;}
 export const upgradeName=(id,level)=>WEAPON_PATHS[id]?.[level-2]?.label||'';
