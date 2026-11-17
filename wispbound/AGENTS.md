@@ -1,10 +1,13 @@
 # WISPBOUND publishing and delivery
-User approved a new public publishing address on2026-10-27 because the legacy project is inaccessible.
-- Active source is this folder. Active Site: appgprj_6ae09b97661c819196509c95530af83a.
-- Public origin: https://wispbound-benas-updates.egna-3646.chatgpt.site . Use it for all future APK, QR and in-game updates.
-- Legacy Site remains unchanged; old Android installs need one manual signed APK upgrade to switch their updater.
-- Preserve lt.benas.wispbound, existing external signing keys, https://wispbound.local/ and all save/profile keys. Never uninstall the app for an update.
-- After every published update include the versioned local APK, verified public APK link, and inline APK QR labeled with the correct release.
-- Communicate in Lithuanian. Web-origin changes require Export/Import for each hero; import adds a separate slot.
 
-- User restored the primary game to 2D V0.1.9 on2026-10-30. Build124 is a compatible signed reissue, not a new gameplay version. Future development continues in2D. The3D build123 source/APK is archived separately under outputs/wispbound-3d-preserved-build123. Do not restore3D or show0.2.x test history in the main game unless requested.
+- Talk to the user in Lithuanian. Never show or commit the Android signing key or its password.
+- Active source: this folder (`wispbound/` in the `palcikevicius-glitch.github.io` repository).
+- Public game and update origin (GitHub Pages, from `main`): https://palcikevicius-glitch.github.io/wispbound/dist/
+  - `release.json`, `wispbound-android.apk` (stable name used by the in-app updater), versioned APK, `atsisiusti.html`.
+  - The repository root belongs to another app (Autoknygelė). Do not change files outside `wispbound/`.
+- Android: package `lt.benas.wispbound`, WebView origin `https://wispbound.local/`, save keys `wispbound.save` / `wispbound.profiles`, envelope 9, schema 6. Never change these; never uninstall for an update.
+- V0.2.0 (build 125) moved the updater from the old chatgpt.site address to GitHub Pages. Installs older than build 125 need one manual APK install; later updates work in-app.
+- Versioning: V0.2.0, V0.2.1 … V0.2.9, V0.3.0 …; V1.0.0 is the Google Play release. Until then the game is a public Beta (`VERSION.beta`). Android build numbers always increase (next: 126).
+- Release steps: update `VERSION` (dist/catalog.js), AndroidManifest versionCode/Name, package.json, changelog entry + LT/RU rows in content-i18n.js; run tests; build APK with `android/build.py` into a fresh build dir using the original signing folder (kept outside the repo); copy to `wispbound-vX.Y.Z-beta-buildN.apk`; run `node scripts/release.mjs` last; update `atsisiusti.html` and QR (`python3 scripts/qr.py URL out.svg`).
+- After every published update give the user: versioned APK, verified public APK link and a version-labelled QR for the direct APK.
+- Second 3D line (V0.2.0 TEST build 123) is archived separately; do not merge it unless asked.

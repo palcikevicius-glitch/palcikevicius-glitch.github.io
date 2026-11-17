@@ -1,7 +1,7 @@
 package lt.benas.wispbound;
 import android.app.*;import android.content.*;import android.content.pm.*;import android.os.Build;import android.net.Uri;import android.provider.Settings;import org.json.JSONObject;import java.io.*;import java.net.*;import java.nio.charset.StandardCharsets;import java.security.MessageDigest;import java.util.*;
 public final class Updater {
- static final String ORIGIN="https://wispbound-benas-updates.egna-3646.chatgpt.site";static final long MAX=80L*1024*1024;static volatile String state="idle";static volatile boolean busy=false,permissionPending=false;static JSONObject release;static int expectedCode=0;static String expectedHash="";static long expectedSize=0;
+ static final String ORIGIN="https://palcikevicius-glitch.github.io/wispbound/dist";static final long MAX=80L*1024*1024;static volatile String state="idle";static volatile boolean busy=false,permissionPending=false;static JSONObject release;static int expectedCode=0;static String expectedHash="";static long expectedSize=0;
  static synchronized boolean begin(){if(busy||state.equals("installing"))return false;busy=true;return true;}
  static void set(String value,int progress){state=value;try{MainActivity.update(new JSONObject().put("state",value).put("progress",progress).toString());}catch(Exception ignored){}}
  static HttpURLConnection connect(String path)throws Exception {HttpURLConnection c=(HttpURLConnection)new URL(ORIGIN+path).openConnection();c.setInstanceFollowRedirects(false);c.setConnectTimeout(15000);c.setReadTimeout(25000);c.setRequestProperty("Cache-Control","no-cache");int status=c.getResponseCode();if(status!=200){c.disconnect();throw new IOException("HTTP status");}return c;}

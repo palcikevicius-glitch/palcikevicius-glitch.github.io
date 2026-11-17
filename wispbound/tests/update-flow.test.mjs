@@ -27,5 +27,5 @@ test('failed save prevents web and Android downloads or installation',async()=>{
  for(const native of [false,true]){const h=setup({native,saved:false});await h.update.download();assert.equal(h.update.state,'saveFailed');h.update.apply();assert.equal(h.update.state,'saveFailed');assert.deepEqual(h.calls,['save','save']);assert.equal(h.applied,false);}
 });
 test('V016 test release retains legacy update compatibility and stable save schema',()=>{
- assert.match(VERSION.name,/^0\.1\.\d+$/);assert.ok(VERSION.build>115);assert.equal(VERSION.save,6);assert.ok(isNewer(115,validateRelease({schema:1,version:'1.17',displayVersion:VERSION.name,build:VERSION.build,channel:'direct'})));
+ assert.match(VERSION.name,/^0\.\d\.\d$/);assert.ok(VERSION.build>115);assert.equal(VERSION.save,6);assert.ok(isNewer(115,validateRelease({schema:1,version:'1.17',displayVersion:VERSION.name,build:VERSION.build,channel:'direct'})));
 });

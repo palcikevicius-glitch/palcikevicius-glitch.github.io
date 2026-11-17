@@ -1,23 +1,25 @@
 {
   "schema": 1,
-  "version": "1.24",
-  "displayVersion": "0.1.9",
-  "build": 124,
+  "version": "1.25",
+  "displayVersion": "0.2.0",
+  "build": 125,
   "channel": "direct",
   "saveSchema": 6,
-  "publishedAt": "2026-10-30T07:43:36.088Z",
+  "publishedAt": "2026-11-17T14:57:30.381Z",
   "android": {
     "package": "lt.benas.wispbound",
-    "size": 13816910,
-    "sha256": "ebc16e80315b7d9bddaea601f881c9f2609696ae3cd0d18003930721842bea99"
+    "size": 13854268,
+    "sha256": "991d02869891471971f31f311187e15d96e893d0f935c68aee7d5ea0aadac265"
   },
   "playUrl": null,
   "appStoreUrl": null,
   "changes": [
-    "Two optional paid revives per journey: 500 gold, then 1000 gold. Revive with half health and three seconds of protection. Banked and journey gold can pay; after both, death is final.",
-    "Hero XP rewards increased by 25%; gem XP by 10%; power-up supply crates arrive 15% more frequently.",
-    "New journeys begin with zero ritual charge. Existing journeys keep their charge.",
-    "Resin Web fires two visible projectiles before spreading its webs, with 25% stronger damage per web.",
-    "Health uses consistent rounding, so fractional maximum health can no longer display as 101/100."
+    "Public beta. Versions now count V0.2.0, V0.2.1 and onward up to V1.0.0, the store release. Updates are published at palcikevicius-glitch.github.io.",
+    "The ritual meter now fills from defeated spirits (guardians much more) and boss damage instead of time. It stays frozen while a ritual or its echo is active and restarts from zero afterwards.",
+    "Forgotten Village has its own bosses: the Scarecrow Warden, the Grave Hound and a rebuilt Bell Keeper. Lantern Quarry has the Lantern Thief and the Stone Breather. Each has its own sprite, movement, three phases and attacks.",
+    "New boss attacks include crow fans, exploding straw dolls, pounces, claw sweeps, summoned packs, bell rings with a safe gap, bell pillars, a shrinking bell cage, blinking, stolen light, lantern mines, burrowing, rolling boulders, rock lines and dust breath.",
+    "Boss arenas are larger: 400 units on every map, and the Drowned Mill arena is no longer cramped. Every attack shows its full danger area first and always leaves a way out.",
+    "A boss health bar with the boss name appears at the top of the screen.",
+    "Drowned Mill, Glass Marsh and Bellwood keep their current boss until their own bosses arrive in a later update. Your progress and unfinished journeys are kept."
   ]
 }
