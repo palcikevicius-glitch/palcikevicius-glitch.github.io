@@ -6,3 +6,4 @@ android-build/
 desktop.ini
 __pycache__/
 *.idsig
+dist/_*.html
