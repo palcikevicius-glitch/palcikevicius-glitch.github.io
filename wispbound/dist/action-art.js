@@ -66,7 +66,11 @@ export function drawRitualFX(c,r,time=0,reduced=false,quality='high'){
 /** Telegraphs persist in reduced-motion mode. age < delay is the safe warning window. */
 export function drawHazards(c,r,time=0,reduced=false){
  for(const h of r.hazards||[]){const age=h.age||0,delay=Math.max(.001,h.delay||0),warning=age<delay,p=clamp(age/delay),radius=Math.max(6,h.radius||45),color=warning?'#ffc175':'#ff627a',t=reduced?0:time;c.save();c.translate(h.x,h.y);
-  if(h.kind==='bolt'){const a=h.angle||0,length=warning?Math.max(25,Math.min(110,(h.speed||100)*delay)):20;c.rotate(a);if(warning){c.globalAlpha=.25;rect(c,-8,-radius,length+8,radius*2,'#ca673e');c.globalAlpha=1;path(c,[[0,-radius],[length,-radius],[length+10,0],[length,radius],[0,radius]],'#fdb779',2);path(c,[[4,0],[length*p,0]],'#ffebad',3);}else{path(c,[[-18,0],[-5,-radius*.65],[14,0],[-5,radius*.65]],'#be344f',3,true,true);path(c,[[-14,0],[0,-radius*.35],[16,0],[0,radius*.35]],'#ffcf98',1,true,true);}c.restore();continue;}
+  if(h.kind==='cone'){drawCone(c,h,warning,p,color);c.restore();continue;}
+  if(h.kind==='ring'&&h.gap>0){drawGapRing(c,h,warning,p,radius,color,t);c.restore();continue;}
+  if(h.kind==='bolt'&&h.look&&!warning){c.rotate(h.angle||0);drawMissile(c,h.look,radius,t);c.restore();continue;}
+  if(h.kind==='circle'&&h.look)drawMarkIcon(c,h.look,radius,warning,p,t);
+  if(h.kind==='bolt'){const a=h.angle||0,length=warning?(h.look==='boulder'?Math.min(1000,(h.speed||100)*(h.maxLife||1)):Math.max(25,Math.min(110,(h.speed||100)*delay))):20;c.rotate(a);if(warning){c.globalAlpha=.25;rect(c,-8,-radius,length+8,radius*2,'#ca673e');c.globalAlpha=1;path(c,[[0,-radius],[length,-radius],[length+10,0],[length,radius],[0,radius]],'#fdb779',2);path(c,[[4,0],[length*p,0]],'#ffebad',3);}else{path(c,[[-18,0],[-5,-radius*.65],[14,0],[-5,radius*.65]],'#be344f',3,true,true);path(c,[[-14,0],[0,-radius*.35],[16,0],[0,radius*.35]],'#ffcf98',1,true,true);}c.restore();continue;}
   c.globalAlpha=warning?.11:.18;c.fillStyle=warning?'#ffb674':'#ff355d';c.beginPath();c.arc(0,0,radius,0,TAU);if(h.kind==='ring') {c.strokeStyle=color;c.lineWidth=Math.max(10,radius*.11);c.stroke();}else c.fill();
   c.globalAlpha=1;ring(c,0,0,radius,'#301e32',6);ring(c,0,0,radius,color,3);if(warning){ring(c,0,0,radius-5,'#ffead4',2,-Math.PI/2,-Math.PI/2+TAU*p);for(let i=0;i<8;i++){const a=i*TAU/8;ray(c,a,radius-4,radius+6,color,2);}if(h.kind!=='ring'){cross(c,0,0,5,'#ffc780');rect(c,-1,-radius*.45,3,8,'#ffe0aa');rect(c,-1,-radius*.45+11,3,3,'#ffe0aa');}}
   else{ring(c,0,0,Math.max(2,radius-7),'#ff9f9c',2);for(let i=0;i<8;i++){const a=i*TAU/8+(reduced?0:t*.4),d=radius*(h.kind==='ring'?.94:.55);diamond(c,Math.cos(a)*d,Math.sin(a)*d,4,'#ffd7b5');}}
@@ -75,6 +79,22 @@ export function drawHazards(c,r,time=0,reduced=false){
 }
 
 /** Golden reward chest silhouette; final clears add a crown above its lid. */
+// V0.2.0 boss telegraphs: every shape shows its full danger area and fills up as it arms.
+function drawCone(c,h,warning,p,color){const a=h.angle||0,s=h.spread||.5,R=h.radius;c.globalAlpha=warning?.13:.24;c.fillStyle=warning?'#ffb674':'#ff355d';c.beginPath();c.moveTo(0,0);c.arc(0,0,R,a-s,a+s);c.closePath();c.fill();c.globalAlpha=1;c.strokeStyle='#301e32';c.lineWidth=5;c.stroke();c.strokeStyle=color;c.lineWidth=2;c.stroke();if(warning){c.globalAlpha=.35;c.fillStyle='#ffd9a8';c.beginPath();c.moveTo(0,0);c.arc(0,0,R*p,a-s,a+s);c.closePath();c.fill();c.globalAlpha=1;}}
+function drawGapRing(c,h,warning,p,radius,color,t){const g=h.gap,ga=h.gapAngle||0,from=ga+g,to=ga-g+TAU;if(warning){ring(c,0,0,radius,'#301e32',5,from,to);ring(c,0,0,radius,color,2,from,to);ring(c,0,0,radius+8,'#ffead4',2,from,from+(to-from)*p);for(const e of [from,to]){const x=Math.cos(e)*radius,y=Math.sin(e)*radius;cross(c,x,y,3,'#9dffb0');}const mid=ga;path(c,[[Math.cos(mid)*(radius+14),Math.sin(mid)*(radius+14)],[Math.cos(mid)*(radius+30),Math.sin(mid)*(radius+30)]],'#9dffb0',3);return;}
+ c.globalAlpha=.85;ring(c,0,0,radius,'#301e32',9,from,to);ring(c,0,0,radius,h.look==='stone'?'#b7c3c9':h.look==='howl'?'#c7b7ff':'#ffcf7a',5,from,to);c.globalAlpha=1;for(let k=0;k<10;k++){const a=from+(to-from)*(k+.5)/10;diamond(c,Math.cos(a)*radius,Math.sin(a)*radius,3,'#fff1d0');}}
+function drawMissile(c,look,radius,t){if(look==='crow'){const f=Math.sin(t*22)>0?1:-1;path(c,[[-9,0],[-2,-7*f],[3,-2],[9,0],[3,2],[-2,7*f]],'#191621',1,true,true);rect(c,5,-1,4,2,'#e6a64a');rect(c,2,-2,2,1,'#ff5a4a');return;}
+ if(look==='spark'){diamond(c,0,0,radius+3,'#ff9f3a');diamond(c,0,0,radius-1,'#fff1a8');rect(c,-radius*2,-1,radius*1.6,2,'#ffcf6b');return;}
+ if(look==='boulder'){c.fillStyle='#2b3238';c.beginPath();c.arc(0,0,radius+2,0,TAU);c.fill();c.fillStyle='#7d8b94';c.beginPath();c.arc(0,0,radius,0,TAU);c.fill();c.fillStyle='#a8bac6';c.beginPath();c.arc(-radius*.3,-radius*.35,radius*.35,0,TAU);c.fill();const spin=t*6;for(let k=0;k<3;k++){const a=spin+k*2.1;rect(c,Math.cos(a)*radius*.6,Math.sin(a)*radius*.6,3,3,'#4b575f');}return;}
+ if(look==='scythe'){path(c,[[-18,0],[-5,-radius*.65],[14,0],[-5,radius*.65]],'#be344f',3,true,true);path(c,[[-4,-radius],[radius,-radius*.2],[-2,-radius*.45]],'#d8e1ec',1,true,true);return;}
+ path(c,[[-18,0],[-5,-radius*.65],[14,0],[-5,radius*.65]],'#be344f',3,true,true);}
+function drawMarkIcon(c,look,radius,warning,p,t){const s=Math.max(6,Math.min(16,radius*.22));if(look==='bell'||look==='pillar'){path(c,[[-s,s*.7],[-s*.7,-s*.5],[0,-s],[s*.7,-s*.5],[s,s*.7]],warning?'#ffcf7a':'#ff9c6a',1,true,true);rect(c,-2,s*.7,4,3,'#301e32');return;}
+ if(look==='doll'){rect(c,-1,-s,3,s*2,'#8a6440');rect(c,-s*.7,-s*.4,s*1.4,3,'#8a6440');c.fillStyle='#d9b864';c.beginPath();c.arc(0,-s,s*.45,0,TAU);c.fill();return;}
+ if(look==='claw'){for(let k=-1;k<=1;k++)path(c,[[k*s*.6-s*.3,-s],[k*s*.6+s*.3,s]],'#ffd9c9',3);return;}
+ if(look==='lantern'){rect(c,-s*.5,-s*.6,s,s*1.2,'#ffd36b');rect(c,-s*.5,-s*.6,s,2,'#2b2b2b');rect(c,-s*.5,s*.6-2,s,2,'#2b2b2b');return;}
+ if(look==='burrow'||look==='stone'){for(let k=0;k<5;k++){const a=k*1.25+(warning?t*2:0);rect(c,Math.cos(a)*radius*.45,Math.sin(a)*radius*.45,4,3,'#c9c1ad');}return;}
+ if(look==='blink'){for(let k=0;k<6;k++){const a=k*TAU/6+t*4;diamond(c,Math.cos(a)*radius*.6,Math.sin(a)*radius*.6,3,'#ffe27a');}}}
+
 export function drawChests(c,r,time=0,reduced=false){
  for(const chest of r.chests||[]){const seed=typeof chest.id==='number'?chest.id:String(chest.id||'').length,bob=reduced?0:Math.sin(time*2.5+seed)*1.5;c.save();c.translate(Math.round(chest.x),Math.round(chest.y+bob));
   rect(c,-19,12,38,7,'#101727');rect(c,-16,-5,32,23,'#251c30');rect(c,-17,-12,34,11,'#342435');rect(c,-14,-16,28,8,'#614437');rect(c,-13,-14,26,9,'#d89442');rect(c,-15,-8,30,7,'#f0bd61');rect(c,-14,-2,28,16,'#986332');rect(c,-13,1,26,3,'#c1873e');rect(c,-13,12,26,3,'#5e3e2f');rect(c,-10,-14,4,28,'#f8d57b');rect(c,6,-14,4,28,'#f8d57b');rect(c,-10,-12,2,10,'#fff0ae');rect(c,6,-12,2,10,'#fff0ae');rect(c,-15,-4,30,3,'#4b3041');rect(c,-4,-5,8,11,'#342938');rect(c,-3,-5,6,9,'#ffe29a');rect(c,-1,-2,2,4,'#685345');
