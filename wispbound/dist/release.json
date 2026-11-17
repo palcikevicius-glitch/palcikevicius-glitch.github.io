@@ -1,26 +1,21 @@
 {
   "schema": 1,
-  "version": "1.26",
-  "displayVersion": "0.2.1",
-  "build": 126,
+  "version": "1.27",
+  "displayVersion": "0.2.2",
+  "build": 127,
   "channel": "direct",
   "saveSchema": 6,
-  "publishedAt": "2026-11-17T16:47:23.715Z",
+  "publishedAt": "2026-11-17T16:51:37.451Z",
   "android": {
     "package": "lt.benas.wispbound",
-    "size": 8089857,
-    "sha256": "aa490ce9da92113c4901c18a2baa7378c7c35c033ede15f727b125f2fe42cb9e"
+    "size": 8093953,
+    "sha256": "71da8de1272ffc06547c7149a4b1fd207be621896fc1fa3f619391ee7c6e44b9"
   },
   "playUrl": null,
   "appStoreUrl": null,
   "changes": [
-    "Every map is redrawn: winding roads, cobbled squares, rivers and ponds, forests, fences, graves, lamps, crystals and reeds, plus its own buildings (mine, water mill, stilt hut, bell shrine). Fireflies, fog, falling leaves and rain.",
-    "Night and lantern light: your lantern lights the way while lamps and windows glow. New Brightness setting.",
-    "Every map has its own music, with new menu and boss themes and softer sound effects.",
-    "Bosses for every map: Drowned Miller and Laumė of the Weir, Mirror Witch and Glass Heron, Antler King and Serpent King, each with its own attacks and colours. Whirlpools pull you; waves and millstones leave one safe lane.",
-    "Seven new weapons: Smith's Cleaver, Frost Distaff, Viper Censer, Thunder Drum, Rowan Bow, Grave Scythe and Hail Sling. Six new artifacts: Lodestone, Fortune Coin, Hare's Foot, Falcon Feather, Owl Lens (see farther) and Four-leaf Clover.",
-    "Weapons visibly grow with upgrades: bigger projectiles, trails, auras and sparks at levels 3, 5 and 7, and a golden look when evolved.",
-    "Bestiary: defeat a spirit or boss to unlock its page with health, speed, damage, weaknesses and resistances. Weaknesses are real: +30% damage with orange numbers, resistances -25%.",
-    "Fixes: the hero faces the way they walk; the boss name and health bar no longer hide behind the inventory; character prices are clearly labelled; the Magnet pulls crystals from about two screens instead of the whole map; spirits take on each map's colour; you wade slowly through water."
+    "Heroes, spirits and bosses are drawn pixel-perfect: eyes and other one-pixel details no longer flicker or disappear while moving.",
+    "This covers the hero, ordinary spirits, guardians and every boss, at every Pixel sharpness setting.",
+    "Your progress and unfinished journeys are kept."
   ]
 }
