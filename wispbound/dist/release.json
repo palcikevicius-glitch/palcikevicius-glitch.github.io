@@ -1,25 +1,26 @@
 {
   "schema": 1,
-  "version": "1.25",
-  "displayVersion": "0.2.0",
-  "build": 125,
+  "version": "1.26",
+  "displayVersion": "0.2.1",
+  "build": 126,
   "channel": "direct",
   "saveSchema": 6,
-  "publishedAt": "2026-11-17T14:57:30.381Z",
+  "publishedAt": "2026-11-17T16:47:23.715Z",
   "android": {
     "package": "lt.benas.wispbound",
-    "size": 13854268,
-    "sha256": "991d02869891471971f31f311187e15d96e893d0f935c68aee7d5ea0aadac265"
+    "size": 8089857,
+    "sha256": "aa490ce9da92113c4901c18a2baa7378c7c35c033ede15f727b125f2fe42cb9e"
   },
   "playUrl": null,
   "appStoreUrl": null,
   "changes": [
-    "Public beta. Versions now count V0.2.0, V0.2.1 and onward up to V1.0.0, the store release. Updates are published at palcikevicius-glitch.github.io.",
-    "The ritual meter now fills from defeated spirits (guardians much more) and boss damage instead of time. It stays frozen while a ritual or its echo is active and restarts from zero afterwards.",
-    "Forgotten Village has its own bosses: the Scarecrow Warden, the Grave Hound and a rebuilt Bell Keeper. Lantern Quarry has the Lantern Thief and the Stone Breather. Each has its own sprite, movement, three phases and attacks.",
-    "New boss attacks include crow fans, exploding straw dolls, pounces, claw sweeps, summoned packs, bell rings with a safe gap, bell pillars, a shrinking bell cage, blinking, stolen light, lantern mines, burrowing, rolling boulders, rock lines and dust breath.",
-    "Boss arenas are larger: 400 units on every map, and the Drowned Mill arena is no longer cramped. Every attack shows its full danger area first and always leaves a way out.",
-    "A boss health bar with the boss name appears at the top of the screen.",
-    "Drowned Mill, Glass Marsh and Bellwood keep their current boss until their own bosses arrive in a later update. Your progress and unfinished journeys are kept."
+    "Every map is redrawn: winding roads, cobbled squares, rivers and ponds, forests, fences, graves, lamps, crystals and reeds, plus its own buildings (mine, water mill, stilt hut, bell shrine). Fireflies, fog, falling leaves and rain.",
+    "Night and lantern light: your lantern lights the way while lamps and windows glow. New Brightness setting.",
+    "Every map has its own music, with new menu and boss themes and softer sound effects.",
+    "Bosses for every map: Drowned Miller and Laumė of the Weir, Mirror Witch and Glass Heron, Antler King and Serpent King, each with its own attacks and colours. Whirlpools pull you; waves and millstones leave one safe lane.",
+    "Seven new weapons: Smith's Cleaver, Frost Distaff, Viper Censer, Thunder Drum, Rowan Bow, Grave Scythe and Hail Sling. Six new artifacts: Lodestone, Fortune Coin, Hare's Foot, Falcon Feather, Owl Lens (see farther) and Four-leaf Clover.",
+    "Weapons visibly grow with upgrades: bigger projectiles, trails, auras and sparks at levels 3, 5 and 7, and a golden look when evolved.",
+    "Bestiary: defeat a spirit or boss to unlock its page with health, speed, damage, weaknesses and resistances. Weaknesses are real: +30% damage with orange numbers, resistances -25%.",
+    "Fixes: the hero faces the way they walk; the boss name and health bar no longer hide behind the inventory; character prices are clearly labelled; the Magnet pulls crystals from about two screens instead of the whole map; spirits take on each map's colour; you wade slowly through water."
   ]
 }

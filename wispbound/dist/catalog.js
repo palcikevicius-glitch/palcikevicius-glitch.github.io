@@ -1,5 +1,5 @@
 // Until V1.0.0 (Google Play) every release is a public beta. Last digit 0-9, then the middle digit rolls over.
-export const VERSION = {name:'0.2.0',build:125,channel:'direct',save:6,beta:true};
+export const VERSION = {name:'0.2.1',build:126,channel:'direct',save:6,beta:true};
 export const RANKS = ['D','C','B','A','S','SS','SSS','SSS+'];
 export const RANK_NAMES = ['Common','Uncommon','Rare','Epic','Legendary','Mythical','Ancient','Divine'];
 export const RANK_COLORS = ['#111820','#a2aab3','#bb83f4','#f59b48','#ffcf58','#ff6668','#ff993b','#fff8ce'];
