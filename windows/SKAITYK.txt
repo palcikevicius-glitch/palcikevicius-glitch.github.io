@@ -1,0 +1,15 @@
+PUPA - ekrano augintinis Windows
+
+1. Išskleiskite ZIP į nuolatinį aplanką (pvz. Dokumentai\Pupa).
+2. Dukart spustelėkite Paleisti.bat.
+   Pirmą kartą bus sukurtas Pupa.exe, vėliau galite leisti jį tiesiai.
+3. Pupa atsiras ekrano apačioje dešinėje, virš visų langų.
+
+Ką galima daryti:
+- spustelėti: pašoka ir pasako ką nors;
+- tempti pele: perkelti bet kur (vieta įsimenama);
+- dešinys pelės klavišas arba piktograma prie laikrodžio: meniu
+  (Paleisti kartu su Windows, Vaikščioti, Grįžti į kampą, Uždaryti).
+
+Pupa seka pelę akimis, žiūri į klaviatūrą, kai rašote,
+kartais pavaikšto ekrano apačioje ir užmiega po 1 min. neveiklumo.
