@@ -29,3 +29,33 @@ export function offscreenSpawn(run,angle,padding=24){
  for(const sign of [1,-1]){const p={x:run.x,y:run.y+sign*(hh+padding+80)};constrainToWorld(run,p,padding);if(Math.abs(p.x-run.x)>hw+padding||Math.abs(p.y-run.y)>hh+padding)return p;}
  return spawnPoint(run,Math.hypot(hw,hh)+padding+80,angle,padding);
 }
+
+// V0.2.1 terrain: deterministic roads, water and forest density per map. Pure functions shared by
+// the scenery generator (collision props) and the ground painter (graphics).
+const fract=v=>v-Math.floor(v);
+export const hash2=(x,y,seed=0)=>fract(Math.sin(x*127.1+y*311.7+seed*74.7)*43758.5453);
+export function valueNoise(x,y,seed=0){const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);
+ const a=hash2(xi,yi,seed),b=hash2(xi+1,yi,seed),c=hash2(xi,yi+1,seed),d=hash2(xi+1,yi+1,seed);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
+export const fbm=(x,y,seed=0)=>valueNoise(x,y,seed)*.55+valueNoise(x*2.1,y*2.1,seed+7)*.3+valueNoise(x*4.3,y*4.3,seed+13)*.15;
+const wrapDist=(v,period)=>{const m=((v%period)+period)%period;return Math.min(m,period-m);};
+// Distance to the nearest road centre line, in world units.
+export function roadDistance(mapId,x,y,origin={x:0,y:0}){const X=x-origin.x,Y=y-origin.y;
+ if(mapId==='village'){const h=wrapDist(Y+110*Math.sin(X/380)+60*Math.sin(X/170),900),v=wrapDist(X+120*Math.sin(Y/420)+50*Math.sin(Y/150),1100);return Math.min(h,v);}
+ if(mapId==='quarry')return Math.abs(Y-60*Math.sin(X/520)-20);
+ if(mapId==='mill'){return Math.abs(X-millCenter({worldOrigin:origin},y)+origin.x+120);}
+ if(mapId==='marsh'){const h=wrapDist(Y+160*Math.sin(X/300),1300),v=wrapDist(X+140*Math.sin(Y/330),1500);return Math.min(h,v);}
+ if(mapId==='bellwood'){const r=Math.hypot(X,Y),a=Math.atan2(Y,X),spoke=Math.abs(Math.sin(a*3+r/260))*r;return r<170?0:Math.min(spoke,Math.abs(r-420));}
+ return 9999;}
+export const ROAD_WIDTH={village:34,quarry:30,mill:26,marsh:22,bellwood:28};
+export function waterAt(mapId,x,y,origin={x:0,y:0}){const X=x-origin.x,Y=y-origin.y;
+ if(mapId==='mill'){const off=X-millCenter({worldOrigin:origin},y)+origin.x;return off>40&&off<185;}
+ const start=Math.hypot(X,Y)>320;// the journey always begins on dry ground
+ if(mapId==='marsh')return start&&fbm(X/260,Y/260,5)>.62&&roadDistance(mapId,x,y,origin)>ROAD_WIDTH.marsh+18;
+ if(mapId==='village')return start&&fbm(X/420,Y/420,11)>.74&&roadDistance(mapId,x,y,origin)>80;
+ return false;}
+export function forestDensity(mapId,x,y,origin={x:0,y:0}){const X=x-origin.x,Y=y-origin.y,n=fbm(X/520,Y/520,3);
+ if(mapId==='bellwood'){const r=Math.hypot(X,Y);return Math.max(0,Math.min(1,(r-260)/300))*(.55+.45*n);}
+ if(mapId==='quarry')return n>.66?.25:0;
+ if(mapId==='mill')return .35+.4*n;
+ if(mapId==='marsh')return n>.55?.45:.12;
+ return Math.max(0,(n-.45)*2.2);}

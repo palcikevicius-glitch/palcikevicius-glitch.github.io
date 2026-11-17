@@ -4,6 +4,7 @@ import {COMBAT_SPEED,encounterPacing,tiersAt,healthForTier,pathStats,effectWindo
 import {encounterState,gainArtifact,recordLoadout,startArena,bossDefeated,hurtPlayer,stepEncounters,activateRitual as invokeRitual,openChest as collectChest} from './encounters.js';
 export {acknowledgeChest} from './encounters.js';
 import {bossFor,bossDef} from './bosses.js';
+import {roadDistance,waterAt,forestDensity,ROAD_WIDTH} from './world-geometry.js';
 import {chargeRitual,RITUAL_PER_KILL,RITUAL_PER_GUARDIAN,RITUAL_PER_BOSS} from './rituals.js';
 import {freshMeta,freshChallenge,validateMeta,character} from './progression.js';
 import {LEGACY_SKILLS,BONUS_DEFAULTS,prerequisitesMet} from './skill-tree.js';
@@ -180,13 +181,16 @@ const worldHash=(x,y,seed)=>{const n=Math.sin(x*127.1+y*311.7+seed*93.1)*43758.5
 export function ensureWorld(r){
  const props=new Map(r.props.filter(p=>distance(p,r)<1250&&insideWorld(r,p,p.radius+8)).map(p=>[p.id,p])),broken=new Set(r.brokenCrates),cx=Math.floor(r.x/240),cy=Math.floor(r.y/240);
  const add=p=>{if(distance(p,r)>p.radius+28&&!r.chests.some(c=>distance(p,c)<p.radius+42)&&!r.powerups.some(c=>distance(p,c)<p.radius+38)&&insideWorld(r,p,p.radius+8)&&!props.has(p.id)&&!broken.has(p.id)&&Math.hypot(p.x,p.y)>115)props.set(p.id,p);};
+ // V0.2.1 scenery follows the terrain: roads and water stay clear, forests gather trees, houses line the roads.
+ const o=r.worldOrigin||{x:0,y:0},road=ROAD_WIDTH[r.mapId]||30,rockChance={quarry:.34,marsh:.08,bellwood:.1,mill:.1}[r.mapId]??.14;
  for(let x=cx-4;x<=cx+4;x++)for(let y=cy-4;y<=cy+4;y++){
-  const n=worldHash(x,y,r.seed),px=x*240+35+n*125,py=y*240+35+worldHash(y+21,x,r.seed)*125;
-  if(n<.82)add({id:`prop:${x}:${y}`,x:px,y:py,radius:20+n*12,kind:n<.43?'rock':'tree'});
-  else if(n>.9){const kind=n>.975?'house':n>.94?'ruin':'well';add({id:`landmark:${x}:${y}`,x:px,y:py,radius:kind==='house'?58:kind==='ruin'?43:25,kind});}
-
+  const n=worldHash(x,y,r.seed),lx=x*240+120+(worldHash(x+3,y,r.seed)-.5)*90,ly=y*240+120+(worldHash(x,y+5,r.seed)-.5)*90,rd=roadDistance(r.mapId,lx,ly,o);
+  if(n>.9&&rd>road+60&&rd<road+190&&!waterAt(r.mapId,lx,ly,o)){const kind=n>.975?'house':n>.945?'ruin':'well';add({id:`landmark:${x}:${y}`,x:lx,y:ly,radius:kind==='house'?58:kind==='ruin'?43:25,kind});continue;}
+  const density=forestDensity(r.mapId,x*240+120,y*240+120,o);
+  for(let k=0;k<3;k++){const h=worldHash(x*3+k,y*7-k,r.seed+k),px=x*240+25+worldHash(x+k*11,y,r.seed)*190,py=y*240+25+worldHash(x,y+k*13,r.seed)*190,radius=20+h*12;
+   if(roadDistance(r.mapId,px,py,o)<road+radius+12||waterAt(r.mapId,px,py,o))continue;
+   if(h<density*(1-k*.28))add({id:`prop:${x}:${y}:${k}`,x:px,y:py,radius,kind:'tree'});else if(k===0&&h>1-rockChance)add({id:`prop:${x}:${y}:${k}`,x:px,y:py,radius:18+h*10,kind:'rock'});}
  }
-
  r.props=[...props.values()];
 }
 export function collisionMove(r,actor,dx,dy,radius){
